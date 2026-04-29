@@ -1,0 +1,41 @@
+{
+    "hamiltonian": {
+        "type": "molecule",
+        "molecule": {
+            "fcidump_path": "../data/h2o_cc-pvtz.fcidump",
+            "threshold": 0.0
+        }
+    },
+    "solver": {
+        "type": "cdfci",
+        "cdfci": {
+            "num_iterations": 3e+07,
+            "report_interval": 1e+5,
+            "z_threshold": 5e-07,
+            "z_threshold_search": false,
+            "stopping_dx_threshold": 5e-6
+        }
+    },
+    "rdm": {
+        "spin_seperate": false,
+        "compute_1RDM": true,
+        "compute_2RDM": true,
+        "method_2RDM": "auto"
+    },
+    "optimal_orbitals": {
+        "num_orbitals": 24,
+        "init_iteration": 0,
+        "max_iteration": 20,
+        "tol": 1e-4,
+        "optimizer": {
+            "max_iterations": 10000,
+            "report_freq": 20,
+            "max_rand_iter": 1,
+            "tolerance": 1e-7,
+            "initial_stepsize": 1e-4
+        }
+    },
+"verbose": 3,
+"max_memory": 10,
+"max_load_factor": 0.79
+}

@@ -1,0 +1,21 @@
+{
+    "hamiltonian": {
+        "type": "hubbard_k",
+        "hubbard_k": {
+            "hubbard_t": 1,
+            "hubbard_u": 4,
+            "lattice": [4, 4],
+            "nelec": 10,
+            "ms2": 0
+        }
+    },
+    "solver":{
+        "type": "cdfci",
+        "cdfci": {
+            "num_iterations": 150000,
+            "report_interval": 10000,
+            "z_threshold": 0,
+            "z_threshold_search": false
+        }
+    }
+}

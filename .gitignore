@@ -1,2 +1,7 @@
 .vscode/*
-*.exe
+bin/*
+debug/*
+test/cdfci_test
+test/cdfci_test_omp
+
+data/*.fcidump

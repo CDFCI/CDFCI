@@ -1,0 +1,12 @@
+{
+    "tools": {
+        "symmetry_connection": {
+            "fcidump_path": "../data/c2_ccpvdz_psi4.FCIDUMP",
+            "one_body_connection": true,
+            "gml_one_body_connection_path": "orb_one_body_conn.gml",
+            "two_body_connection": true,
+            "gml_two_body_connection_path": "orb_two_body_conn.gml",
+            "threshold": 1e-10
+        }
+    }
+}

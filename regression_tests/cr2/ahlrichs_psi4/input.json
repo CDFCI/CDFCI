@@ -1,0 +1,18 @@
+{
+    "hamiltonian": {
+        "type": "molecule",
+        "molecule": {
+            "fcidump_path": "../data/cr2_ahlrichs_psi4.FCIDUMP",
+            "threshold": 0.0
+        }
+    },
+    "solver":{
+        "cdfci": {
+            "num_iterations": 2000,
+            "report_interval": 100,
+            "z_threshold": 0,
+            "z_threshold_search": false
+        }
+    },
+    "max_memory": 5
+}

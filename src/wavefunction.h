@@ -5,10 +5,10 @@
 // |  `----.|  '--'  ||  |     |  `----.|  |
 //  \______||_______/ |__|      \______||__|
 //
-// Coordinate Descent Full Configuration Interaction (CDFCI) package in C++14
+// Coordinate Descent Full Configuration Interaction (CDFCI) package in C++17
 // https://github.com/quan-tum/CDFCI
 //
-// Copyright (c) 2019, Zhe Wang, Yingzhou Li and Jianfeng Lu
+// Copyright (c) 2019-2025, CDFCI Developers and Contributors
 // All rights reserved.
 //
 // This source code is licensed under the BSD 3-Clause License found in the
@@ -17,430 +17,680 @@
 #ifndef CDFCI_WAVEFUNCTION_H
 #define CDFCI_WAVEFUNCTION_H 1
 
-#include <unordered_map>
-#include <cmath>
-#include "lib/libcuckoo/cuckoohash_map.hh"
-#include "lib/robin_hood/robin_hood.h"
+#include "config.h"
+#include "vecmath.h"
+#include "container.h"
 #include "determinant.h"
+#include "hamiltonian.h"
+#include <cmath>
+#include <type_traits>
 
-template<int N = 1>
-class WaveFunctionVector
+#define DEFINE_ACCESSORS(NAME, MEMBER)                                 \
+    data_matrix_type get_##NAME##_double() const {                     \
+         return to_double_precision(MEMBER); }                         \
+    quad_data_matrix_type get_##NAME() const { return MEMBER; }        \
+    void set_##NAME(quad_data_matrix_type val) { MEMBER = val; }       \
+    void set_##NAME(data_matrix_type val) {                            \
+        MEMBER = to_quad_precision(val); }                             \
+    void update_##NAME(quad_data_matrix_type inc) {                    \
+         add_assign(MEMBER, inc); }                                    \
+    void update_##NAME(data_matrix_type inc) {                         \
+         add_assign(MEMBER, to_quad_precision(inc)); }
+
+#define IDX(i, j) ((i) + (j) * (NSTATES))
+#define X(i) ((i))
+#define Z(i) ((i) + (NSTATES))
+
+using namespace vecmath;
+
+template <typename Container, int NSTATES = 1>
+class WaveFunctionBase
 {
-    public:
+public:
+    using key_type = typename Container::key_type;
+    using mapped_type = typename Container::mapped_type; // {x, z}
+    using hasher = typename Container::hasher;
+    using key_equal = typename Container::key_equal;
+    using iterator = typename Container::iterator;
+    using const_iterator = typename Container::const_iterator;
 
-    using value_type = std::pair<Determinant<N>, std::array<double, 2>>;
-    std::vector<value_type> data;  // TODO: use iterator, and move to private.
+    using data_type = std::conditional_t<(NSTATES == 1), NumericalType, std::array<NumericalType, NSTATES>>;
+    using data_matrix_type = std::conditional_t<(NSTATES == 1), NumericalType, std::array<NumericalType, NSTATES * NSTATES>>;
+    using quad_data_type = std::conditional_t<(NSTATES == 1), QUAD_PRECISION, std::array<QUAD_PRECISION, NSTATES>>;
+    using quad_data_matrix_type = std::conditional_t<(NSTATES == 1), QUAD_PRECISION, std::array<QUAD_PRECISION, NSTATES * NSTATES>>;
 
-    std::array<QUAD_PRECISION, 2> norm_square_ = {0, 0};
-    QUAD_PRECISION dot_product_ = 0;
-    // Temporary data when updating xz.
-    size_t n_new_element = 0;  // Number of elements not in xz. Used to update xz.size() for Cuckoo hash table.
-    double new_z = 0;  // Store the recalculated z_i.
+    static constexpr int NSTATES_val = NSTATES; // number of states stored
+    int num_states = 1; // number of states desired
 
-    public:
+protected:
+    /* Data */
+    // Store the wavefunction {i, {x_i, z_i}} where z approximates Hx
+    Container data_;
+    // {x'x, z'z}
+    std::array<quad_data_matrix_type, 2> norm_square_ = {};
+    // x'z
+    quad_data_matrix_type dot_product_ = {};
+    // scale factor
+    ScaleFactorType scale_factor_ = static_cast<ScaleFactorType>(1.0);
+    // energy estimate
+    data_type energy_ = {};
 
-    WaveFunctionVector(long capacity = 0)
+    // number of nonzeros
+    std::array<size_t, 2> size_ = {};
+
+    size_t capacity_ = 0;
+
+public:
+    /* Constructors */
+    WaveFunctionBase(size_t capacity = 16)
     {
-        data.reserve(capacity);
+        data_.reserve(capacity);
+        capacity_ = capacity;
     }
 
-    ~WaveFunctionVector() {};
+    /* Destructor */
+    virtual ~WaveFunctionBase() {}
 
-    double xx() const
+    virtual void clear()
     {
-        return norm_square_[0];
+        data_.clear();
+        norm_square_ = {};
+        dot_product_ = {};
+        scale_factor_ = static_cast<ScaleFactorType>(1.0);
+        size_ = {};
     }
 
-    void set_xx(double xx)
+    /* Iterators */
+    // WARNING:
+    //   Iterator may be invalidated by other threads if
+    // running in parallel.
+    const_iterator begin() const { return data_.begin(); }
+
+    const_iterator end() const { return data_.end(); }
+
+    iterator begin() { return data_.begin(); }
+
+    iterator end() { return data_.end(); }
+
+    /* Other member functions */
+    size_t size_x() const { return size_[0]; }
+    void update_size_x(size_t n) { size_[0] += n; }
+
+    size_t size_z() const { return size_[1]; }
+    void update_size_z(size_t n) { size_[1] += n; }
+
+    size_t size() const { return data_.size(); }
+
+    DEFINE_ACCESSORS(xx, norm_square_[0])
+    DEFINE_ACCESSORS(zz, norm_square_[1])
+    DEFINE_ACCESSORS(xz, dot_product_)
+
+    ScaleFactorType get_scale() const { return scale_factor_; }
+    void set_scale(ScaleFactorType s) { scale_factor_ = s; }
+    void set_scale(NumericalType s) { scale_factor_ = (ScaleFactorType)s; }
+
+    size_t capacity() const { return capacity_; }
+
+    void compute_variational_energy()
     {
-        norm_square_[0] = xx;
+        if constexpr (NSTATES == 1) {
+            energy_ = dot_product_ / norm_square_[0];
+        }
+        else {
+            Eigen::MatrixXd A(num_states, num_states);
+            Eigen::MatrixXd B(num_states, num_states);
+
+            for (int i = 0; i < num_states; ++i)
+            for (int j = 0; j < num_states; ++j)
+            {
+                A(i, j) = dot_product_[IDX(i, j)];
+                B(i, j) = norm_square_[0][IDX(i, j)];
+            }
+
+            Eigen::GeneralizedSelfAdjointEigenSolver<Eigen::MatrixXd> solver(A, B);
+
+            if (solver.info() != Eigen::Success) {
+                throw std::runtime_error("General Eigensolver failed");
+            }
+
+            for (int i = 0; i < num_states; ++i)
+                energy_[i] = solver.eigenvalues()[i];
+        }
     }
 
-    double xz() const
+    data_type get_variational_energy() const {  return energy_; }
+
+    data_type get_x(const key_type &det) const
     {
-        return dot_product_;
+        data_type x = {};
+        auto val = data_.find_val(det);
+        if (val)
+            x = slice_first_half(*val);
+        return x;
     }
 
-    void set_xz(double xz)
+    data_type get_z(const key_type &det) const
     {
-        dot_product_ = xz;
+        data_type z = {};
+        auto val = data_.find_val(det);
+        if (val)
+            z = slice_second_half(*val);
+        return z;
     }
 
-    size_t size() const
+    data_type get_grad(const data_type &x, const data_type &z) const
     {
-        return data.size();
+        data_matrix_type xx = get_xx_double();
+        if constexpr (NSTATES == 1) {
+            return (x * xx + z);
+        } else {
+            data_type g = {};
+            for (int i = 0; i < NSTATES; ++i) {
+                g[i] = z[i];
+                for (int k = 0; k < NSTATES; ++k)
+                    g[i] += x[k] * xx[IDX(k, i)];
+            }
+            return g;
+        }
     }
+
+    /* Helper function */
+    quad_data_matrix_type to_quad_precision(const data_matrix_type &input) const {
+        if constexpr (NSTATES == 1) {
+            return static_cast<QUAD_PRECISION>(input);
+        } else {
+            quad_data_matrix_type result = {};
+            for (size_t i = 0; i < NSTATES * NSTATES; ++i) {
+                result[i] = static_cast<QUAD_PRECISION>(input[i]);
+            }
+            return result;
+        }
+    }
+
+    data_matrix_type to_double_precision(const quad_data_matrix_type &input) const {
+        if constexpr (NSTATES == 1) {
+            return static_cast<NumericalType>(input);
+        } else {
+            data_matrix_type result = {};
+            for (size_t i = 0; i < NSTATES * NSTATES; ++i) {
+                result[i] = static_cast<NumericalType>(input[i]);
+            }
+            return result;
+        }
+    }
+
+    /* Debug function */
+    void print_xx_xz(data_matrix_type &xx, data_matrix_type &xz) {
+        if constexpr (NSTATES == 1) {
+            std::cout << "xx = " << static_cast<NumericalType>(xx)
+                      << std::endl;
+            std::cout << "xz = " << static_cast<NumericalType>(xz)
+                      << std::endl;
+        } else {
+            std::cout << "xx = " << std::endl;
+            for (size_t i = 0; i < NSTATES; i++) {
+                for (size_t j = 0; j < NSTATES; j++) {
+                    std::cout << static_cast<NumericalType>(xx[IDX(i, j)]) << " ";
+                }
+                std::cout << std::endl;
+            }
+            std::cout << "xz = " << std::endl;
+            for (size_t i = 0; i < NSTATES; i++) {
+                for (size_t j = 0; j < NSTATES; j++) {
+                    std::cout << static_cast<NumericalType>(xz[IDX(i, j)]) << " ";
+                }
+                std::cout << std::endl;
+            }
+        }
+    }
+
+    void print_xx_xz() {
+        auto xx = to_double_precision(norm_square_[0]);
+        auto xz = to_double_precision(dot_product_);
+        print_xx_xz(xx, xz);
+    }
+
+    void calculate_xx_xz() {
+        data_matrix_type xx = {};
+        data_matrix_type xz = {};
+        for (auto it = begin(); it != end(); ++it) {
+            if constexpr (NSTATES == 1) {
+                xx += it->second[0] * it->second[0];
+                xz += it->second[0] * it->second[1];
+            } else {
+                for (size_t i = 0; i < NSTATES; i++)
+                for (size_t j = 0; j < NSTATES; j++)
+                {
+                    xx[IDX(i, j)] += it->second[X(i)] * it->second[X(j)];
+                    xz[IDX(i, j)] += it->second[X(i)] * it->second[Z(j)];
+                }
+            }
+        }
+        print_xx_xz(xx, xz);
+    }
+};
+
+template <typename Container, int NSTATES = 1>
+class WaveFunctionFragment : public WaveFunctionBase<Container, NSTATES>
+{
+public:
+    using Base = WaveFunctionBase<Container, NSTATES>;
+    using typename Base::key_type;
+    using typename Base::mapped_type;
+    using typename Base::hasher;
+    using typename Base::key_equal;
+    using typename Base::iterator;
+    using typename Base::const_iterator;
+    using value_type = typename Container::value_type;
+
+protected:
+    using Base::data_;
+    using Base::norm_square_;
+    using Base::dot_product_;
+    using Base::scale_factor_;
+    using Base::size_;
+    using Base::capacity_;
+
+public:
+    WaveFunctionFragment(size_t capacity_ = 16)
+        : Base(capacity_){}
 
     void clear()
     {
-        data.clear();
-        norm_square_ = {0, 0};
-        dot_product_ = 0;
+        Base::clear();
     }
 
-    void append(WaveFunctionVector<N>& sub_xz)
-    {
-        data.insert(data.end(), sub_xz.data.begin(), sub_xz.data.end());
-    }
+    void push_back(const value_type &val) { data_.push_back(val); } // const reference
+    void push_back(value_type &&val) { data_.push_back(std::move(val)); } // rvalue reference
 
+    void push_back(const key_type &det, const mapped_type &val) { data_.emplace_back(det, val); }
+    void push_back(key_type &&det, mapped_type &&val) { data_.emplace_back(std::move(det), std::move(val)); }
+
+    void append(WaveFunctionFragment<Container, NSTATES> &sub_xz)
+    { data_.append(sub_xz); }
 };
 
-template<int N = 1>
-class WaveFunction
+template <typename Container, int NSTATES = 1>
+class WaveFunction : public WaveFunctionBase<Container, NSTATES>
 {
-    protected:
+public:
+    using Base = WaveFunctionBase<Container, NSTATES>;
+    using typename Base::key_type;
+    using typename Base::mapped_type;
+    using typename Base::hasher;
+    using typename Base::key_equal;
+    using typename Base::iterator;
+    using typename Base::const_iterator;
+    using ContainerVectorType =
+        ContainerVector<key_type, mapped_type, hasher, key_equal>;
+    using wff_type = WaveFunctionFragment<ContainerVectorType, NSTATES>;
 
-    std::array<QUAD_PRECISION, 2> norm_square_ = {0, 0};
-    QUAD_PRECISION dot_product_ = 0;
+    using typename Base::data_type;
+    using typename Base::data_matrix_type;
+    using typename Base::quad_data_type;
+    using typename Base::quad_data_matrix_type;
 
-    public:
+protected:
+    /* Data */
+    using Base::data_;
+    using Base::norm_square_;
+    using Base::dot_product_;
+    using Base::scale_factor_;
+    using Base::size_;
+    using Base::capacity_;
 
-    using key_type = Determinant<N>;
-    using value_type = std::array<double, 2>;
+    NumericalType max_load_factor_;
 
-    size_t max_size = 0;
+public:
+    /* Constructors */
+    WaveFunction(){}
+    WaveFunction(size_t capacity_, NumericalType max_load_factor = 0.79)
+        : Base(capacity_)
+    { max_load_factor_ = max_load_factor;}
 
-    double xx() const
+    /* Destructor */
+    virtual ~WaveFunction() {}
+
+    NumericalType max_load_factor() const { return max_load_factor_; }
+
+    /* Update x or z */
+    void update_x(key_type &det, data_type dx)
     {
-        return norm_square_[0];
-    }
+        mapped_type vec_xz = {};
+        mapped_type val_new = {};
+        add_assign_first_half(val_new, dx);
+        int new_element = 1;
+        auto update_functor = [dx, &vec_xz, &new_element](mapped_type &val) {
+            new_element = is_zero_on_first_half(val);
+            vec_xz = val;
+            add_assign_first_half(val, dx); // x += dx
+            return false; // no deletion
+        };
+        // insert val_new or update vec_xz
+        upsert(data_, det, update_functor, val_new);
 
-    double xz() const
-    {
-        return dot_product_;
-    }
-
-    void update_xz(QUAD_PRECISION inc)
-    {
-        dot_product_ += inc;
-    }
-
-    double get_variational_energy() const
-    {
-        // xz/xx
-        return dot_product_ / norm_square_[0];
-    }
-
-    virtual void update_x(key_type& key, double dx) {};
-    virtual void update_z_and_get_sub(std::vector<std::pair<key_type, double>>& column, 
-        double dx, WaveFunctionVector<N>& sub_xz, double z_threshold) {};
-    virtual void update_z_only(std::vector<std::pair<key_type, double>>& column, 
-        double dx, WaveFunctionVector<N>& sub_xz, double z_threshold) = 0;
-    virtual size_t size() = 0;
-    virtual size_t update_size(size_t n_new_element) {return 0;}
-    virtual void reinsert_z(key_type& key, double new_z) {};
-
-    virtual ~WaveFunction() {};
-};
-
-/* Hash function mapping determinants to size_t */
-// Warning: The following hash functions are naive and just okay to use. They should be replaced with
-// better hash functions.
-// The determinants are represented as an array of size_t integers.
-template<int N>
-struct DeterminantHash {
-    size_t operator() (const Determinant<N>& det) const {
-        throw std::invalid_argument("The DeterminantHash does not support N > 4. Please modify the "
-            "\"DeterminantHash\" class in \"wavefunction.h\" and provide a DeterminantHash.");
-        return 0;
-    }
-};
-
-template<>
-size_t DeterminantHash<1>::operator() (const Determinant<1>& det) const
-{
-    return det.repr[0];
-}
-
-template<>
-size_t DeterminantHash<2>::operator() (const Determinant<2>& det) const
-{
-    return det.repr[0] * 2038076783 + det.repr[1] * 179426549;
-}
-
-template<>
-size_t DeterminantHash<3>::operator() (const Determinant<3>& det) const
-{
-    return det.repr[0] * 2038076783 + det.repr[1] * 179426549 + det.repr[2] * 500002577;
-}
-
-template<>
-size_t DeterminantHash<4>::operator() (const Determinant<4>& det) const
-{
-    return det.repr[0] * 2038076783 + det.repr[1] * 179426549 + det.repr[2] * 500002577 + det.repr[3] * 255477023;
-}
-
-template <int N>
-struct DeterminantHashRobinhood
-{
-    size_t operator()(const Determinant<N> &det) const
-    {
-        DeterminantHash<N> hash1;
-        return (robin_hood::hash_int(hash1(det)));
-    }
-};
-
-template<int N>
-struct DeterminantEqual {
-    bool operator () (const Determinant<N>& det1, const Determinant<N>& det2) const {
-        bool result = true;
-        for (auto i = 0; i < N; ++i)
-        {
-            result = result && (det1.repr[i] == det2.repr[i]);
+        // Update xx, xz and size
+        // (x + dx)'*(x + dx) = x'*x + dx'*x + x'*dx +  dx'*dx
+        // (x + dx)'*(z + dz) = x'*z + dx'*z + (x+dx)'*dz (the third part updated later)
+        if constexpr (NSTATES == 1) {
+            this->update_xx(2.0 * vec_xz[0] * dx + dx * dx);
+            this->update_xz(vec_xz[1] * dx);
+        } else {
+            // update xx
+            data_matrix_type delta_xx = {};
+            for (size_t i = 0; i < NSTATES; i++)
+                for (size_t j = 0; j < NSTATES; j++)
+                    delta_xx[IDX(i, j)] = dx[i] * vec_xz[X(j)] + vec_xz[X(i)] * dx[j] + dx[i] * dx[j];
+            this->update_xx(delta_xx);
+            // update xz
+            data_matrix_type delta_xz = {};
+            for (size_t i = 0; i < NSTATES; i++)
+                for (size_t j = 0; j < NSTATES; j++)
+                    delta_xz[IDX(i, j)] = dx[i] * vec_xz[Z(j)];
+            this->update_xz(delta_xz);
         }
-        return result;
-    }
-};
-
-template<int N = 1>
-class WaveFunctionStd : public WaveFunction<N>
-{
-    using typename WaveFunction<N>::key_type;
-    using typename WaveFunction<N>::value_type;
-
-    using WaveFunction<N>::norm_square_;
-    using WaveFunction<N>::dot_product_;
-    using WaveFunction<N>::max_size;
-
-    private:
-
-    robin_hood::unordered_flat_map<key_type, value_type, DeterminantHash<N>, DeterminantEqual<N>> data_;
-
-    public:
-
-    WaveFunctionStd(size_t capacity)
-    {
-        data_.reserve(capacity);
-        max_size = capacity;
-    }
-
-    ~WaveFunctionStd() {};
-
-    void update_x(key_type& key, double dx)
-    {
-        auto iter = data_.find(key);
-        if (iter != data_.end())
-        {
-            // Update xx and xz
-            norm_square_[0] += 2 * iter->second[0] * dx + dx * dx;
-            dot_product_ += iter->second[1] * dx;
-            // Update x
-            iter->second[0] += dx;
-        }
-        else
-        {
-            value_type val {dx, 0};
-            data_.insert({key, val});
-            // Update xx and xz
-            norm_square_[0] += dx * dx;
-        }
+        this->update_size_x(new_element);
         return;
     }
 
-    void update_z_only(std::vector<std::pair<key_type, double>>& column, 
-        double dx, WaveFunctionVector<N>& sub_xz, double z_threshold = 0.0)
+    // Update z and store the updated wavefunction into sub_xz.
+    // Return new_z.
+    // Note:
+    //   This function may be called in parallel. So dot_product_
+    // and size_ are updated into sub_xz not *this, the wavefunction
+    // itself, to avoid confliction. dot_product_ and size_
+    // of *this need to be updated outside this function.
+    //   Assume sub_xz is properly initialized.
+    //   New z is inserted only if abs(z) > z_threshould.
+    template<typename C>
+    data_type update_z(C &column, data_type dx,
+                  wff_type &sub_xz,
+                  NumericalType z_threshold = 0.0)
     {
-        // Used to recalculate z_i exactly. Assume the first entry of column is the one to be updated.
-        // And column is the full corresponding column of the Hamiltonian.
-        double new_z = 0.0;
-
-        // Loop over column, update z, xz and get sub_xz
-        for (auto& entry : column)
+        data_type new_z = {}; // Store the recalculated z_i.
+        data_matrix_type delta_xz = {};
+        NumericalType scale = this->get_scale();
+        // Loop over the column
+        for (auto &entry : column)
         {
-            auto& det = entry.first;
+            auto &det = entry.first;
             auto h = entry.second;
-            auto dz = dx * h;
+            data_type dz = multiply(dx, h);
 
-            auto iter = data_.find(det);
-            if (iter != data_.end())
-            {
-                // Update z
-                iter->second[1] += dz;
-                // Update xz. Note: zz is not used and updated.
-                sub_xz.dot_product_ += dz * iter->second[0];
-                // Update sub_xz
-                value_type val {iter->second[0], iter->second[1]};
-                sub_xz.data.push_back({det, val});
-                // Recaculate new_z
-                new_z += h * iter->second[0];
-            }
-            else
-            {
-                // Only update if above threold
-                if (fabs(dz) > z_threshold)
-                {
-                    value_type val {0, dz};
-                    data_.insert({det, val});
-                    // Update xz. Note d(xz) = 0;
-                    // Update sub_xz
-                    sub_xz.data.push_back({det, val});
-                }
-            }
-        }
-        // Update z_i. Assume column[0] is the coordinate updated.
-        auto iter = data_.find(column[0].first);
-        iter->second[1] = new_z;
-        
-        return;
-    }
+            mapped_type vec_xz = {};
+            mapped_type val_new = {};
+            add_assign_second_half(vec_xz, dz);
+            add_assign_second_half(val_new, dz);
 
-    void update_z_and_get_sub(std::vector<std::pair<key_type, double>>& column, 
-        double dx, WaveFunctionVector<N>& sub_xz, double z_threshold = 0.0)
-    {
-        // Clear sub_xz
-        sub_xz.clear();
-        
-        update_z_only(column, dx, sub_xz, z_threshold);
-
-        // Update dot product. (atomic update)
-        dot_product_ += sub_xz.dot_product_;
-        // Update sub_xz
-        sub_xz.set_xx(norm_square_[0]);
-        sub_xz.set_xz(dot_product_); 
-        return;
-    }
-
-    size_t size()
-    {
-        return data_.size();
-    }
-};
-
-template<int N = 1>
-class WaveFunctionCuckoo : public WaveFunction<N>
-{
-    using typename WaveFunction<N>::key_type;
-    using typename WaveFunction<N>::value_type;
-
-    using WaveFunction<N>::norm_square_;
-    using WaveFunction<N>::dot_product_;
-    using WaveFunction<N>::max_size;
-    
-    private:
-
-    cuckoohash_map<key_type, value_type, DeterminantHashRobinhood<N>, DeterminantEqual<N>,\
-         std::allocator<std::pair<const key_type, value_type>>, 8> data_;
-    size_t size_ = 0;
-
-    public:
-
-    WaveFunctionCuckoo(size_t capacity)
-    {
-        data_.reserve(capacity);
-        max_size = capacity;
-    }
-
-    ~WaveFunctionCuckoo() {};
-
-    void update_x(key_type& key, double dx)
-    {
-        value_type xz {0, 0};
-        value_type val_new {dx, 0};
-        auto update_fn = [dx, &xz](value_type& val){xz[0] = val[0]; xz[1] = val[1];
-            val[0] += dx; return false;};
-        data_.upsert(key, update_fn, val_new);
-
-        norm_square_[0] += 2 * xz[0] * dx + dx * dx;
-        dot_product_ += xz[1] * dx;
-        return;
-    }
-
-    void update_z_only(std::vector<std::pair<key_type, double>>& column, 
-		       double dx, WaveFunctionVector<N>& sub_xz, double z_threshold = 0.0)
-    {
-        // Recalculate z_i
-        sub_xz.new_z = 0;
-        // Update size
-        sub_xz.n_new_element = 0;
-
-        // Loop over column, update z, xz and get sub_xz
-        for (auto& entry : column)
-        {
-            auto& det = entry.first;
-            auto h = entry.second;
-            auto dz = dx * h;
-
-            value_type val_new{0, 0};
-            auto update_functor = [dz, &val_new](value_type &val) {
-                // Update z
-                val[1] += dz;
-                // Get the value after update
-                val_new[0] = val[0];
-                val_new[1] = val[1];
-                return false;  // always return false
+            int new_element = 1;
+            auto update_functor = [dz, &vec_xz, &new_element](mapped_type &val) {
+                new_element = is_zero_on_second_half(val);
+                add_assign_second_half(val, dz); // z += dz
+                vec_xz = val;
+                return false;
             };
-            // Call update_functor if det is found
-            auto flag_found = data_.update_fn(det, update_functor);
-            if (flag_found)
+            auto dz_norm = max_norm(multiply(dz, scale));
+            if (dz_norm > z_threshold)
             {
-                // Update xz. Note: zz is not used and updated.
-                sub_xz.dot_product_ += dz * val_new[0];
-                // Update sub_xz
-                sub_xz.data.push_back({det, val_new});
-                // Recaculate z_i
-                sub_xz.new_z += h * val_new[0];
+                // insert val_new or update vec_xz
+                upsert(data_, det, update_functor, val_new);
+
+                sub_xz.update_size_z(new_element);
+                if constexpr (NSTATES == 1) {
+                    delta_xz += vec_xz[0] * dz;
+                } else {
+                    for (size_t i = 0; i < NSTATES; i++)
+                        for (size_t j = 0; j < NSTATES; j++)
+                            delta_xz[IDX(i, j)] += vec_xz[X(i)] * dz[j];
+                }
+                sub_xz.push_back(det, vec_xz);
             }
             else
             {
-                // Only update if above threold
-                if (fabs(dz) > z_threshold)
+                bool exist_z_flag = update_fn(data_, det, update_functor);
+                if (exist_z_flag)
                 {
-                    value_type val{0, dz};
-                    data_.insert(det, val);
-                    // Update xz. Note d(xz) = 0;
-                    // Update sub_xz
-                    sub_xz.data.push_back({det, val});
-                    // Update size
-                    sub_xz.n_new_element += 1;
+                    if constexpr (NSTATES == 1) {
+                        delta_xz += vec_xz[0] * dz;
+                    } else {
+                        for (size_t i = 0; i < NSTATES; i++)
+                            for (size_t j = 0; j < NSTATES; j++)
+                                delta_xz[IDX(i, j)] += vec_xz[X(i)] * dz[j];
+                    }
+
+                    sub_xz.push_back(det, vec_xz);
                 }
             }
+
+            // Recall that (x + dx)'*(z + dz) = x'*z + dx'*z + (x+dx)'*dz (the third part updated here)
+            // with threshold, we ensure xz = x'*z but not z = Hx.
+
+            // Recalculate z
+            add_assign(new_z, multiply(slice_first_half(vec_xz), h));
         }
-        // Check overflow
-        if (size() > 0.79 * max_size)
-        {
-            throw std::overflow_error("The hash table is full. Please increase max_wavefunction_size or z_threshold.");
-        }
-        return;
+
+        sub_xz.update_xz(delta_xz); // Do high-precision operations only once
+        return new_z;
     }
 
-    void update_z_and_get_sub(std::vector<std::pair<key_type, double>>& column, 
-			      double dx, WaveFunctionVector<N>& sub_xz, double z_threshold = 0.0)
+    template<typename H>
+    void update_coordinate(wff_type &det_picked, H &h,
+                           wff_type &sub_xz,
+                           NumericalType z_threshold = 0.0)
     {
-        // Clear sub_xz
+        // Initialize sub_xz
         sub_xz.clear();
 
-        update_z_only(column, dx, sub_xz, z_threshold);
-        
-        dot_product_ += sub_xz.dot_product_;
-        // Update sub_xz
-        sub_xz.set_xx(norm_square_[0]);
-        sub_xz.set_xz(dot_product_); 
+        // For (det, dx) in det_picked, update x[det] += dx
+        for (const auto &keyval : det_picked)
+        {
+            key_type det = keyval.first;
+            data_type dx = slice_first_half(keyval.second);
+
+            update_x(det, dx);
+        }
+
+        // For (det, dx) in det_picked, update z[i] += h(i, det) * dx
+        // and recalculate z
+#ifndef CDFCI_SOLVER_SERIAL
+        size_t p = omp_get_max_threads();
+        size_t inner_tasks = h.nelec / 2; // so that double excitation inner task has similar workload to single excitation task
+
+        std::shared_ptr<H> h_shared(&h, [](H*) {
+            // Empty destructor to prevent std::shared_ptr from calling delete
+        });
+
+#pragma omp parallel
+{
+        #pragma omp for schedule(dynamic)
+#endif
+        for (auto &keyval : det_picked)
+        {
+            key_type det = keyval.first;
+            data_type dx = slice_first_half(keyval.second);
+            data_type new_z = {};
+
+#ifndef CDFCI_SOLVER_SERIAL
+            #pragma omp taskgroup
+            {
+                generate_parallel_task(det, dx, h_shared, sub_xz, new_z, z_threshold);
+
+                for (size_t tid = 0; tid < inner_tasks; ++tid)
+                    generate_parallel_task(det, dx, h_shared, sub_xz, new_z, z_threshold,
+                tid, inner_tasks);
+            }
+#else
+            auto column = h.get_column(det);
+            new_z = update_z(column, dx, sub_xz, z_threshold);
+#endif
+            assign_second_half(keyval.second, new_z);
+        }
+
+#ifndef CDFCI_SOLVER_SERIAL
+}
+#endif
+
+        // For (det, new_z) in det_picked, reinsert new_z and update xz
+        // We always ensure xz = x'*z, z could be compressed
+        for (const auto &keyval : det_picked)
+        {
+            key_type det = keyval.first;
+            data_type new_z = slice_second_half(keyval.second);
+
+            reinsert_new_z(det, new_z);
+        }
+
+        // Reduce sub_xz to *this
+        this->update_xz(sub_xz.get_xz());
+        this->update_size_z(sub_xz.size_z());
+
         return;
     }
 
-    void reinsert_z(key_type& key, double new_z)
+    template<typename H>
+    void generate_parallel_task(key_type &det, data_type dx,             // read-only, defined first-private
+                                std::shared_ptr<H> h_shared,                 // shared pointer
+                                wff_type &sub_xz, data_type &new_z,      // shared variable that is updated in critical area
+                                NumericalType z_threshold,
+                                int tid = 0, int inner_tasks = 0)
     {
-        value_type val_new {0, new_z};
+#ifndef CDFCI_SOLVER_SERIAL
+        #pragma omp task firstprivate(det, dx) shared(sub_xz, new_z)
+        {
+            typename H::Column column_parallel;
+            if (inner_tasks == 0)
+                column_parallel = h_shared->get_column_serial_part(det);
+            else
+                column_parallel = h_shared->get_column_parallel_part(det, tid, inner_tasks);
 
-        auto update_fn = [new_z](value_type& val){
-            val[1] = new_z;
+            wff_type sub_xz_parallel;
+            data_type new_z_parallel;
+            new_z_parallel = update_z(column_parallel, dx, sub_xz_parallel, z_threshold);
+
+            // Reduce sub_xz_parallel to sub_xz
+            #pragma omp critical
+            {
+                sub_xz.update_xz(sub_xz_parallel.get_xz());
+                sub_xz.update_size_z(sub_xz_parallel.size_z());
+                sub_xz.append(sub_xz_parallel);
+                add_assign(new_z, new_z_parallel);
+            }
+        }
+#endif
+    }
+
+    // Check overflow
+    // The purpose is to prevent the container to expand automatically, since
+    // I do not find a way to disable automatic expansion.
+    void check_overflow() const {
+        if (this->size_z() > max_load_factor() * this->capacity())
+        {
+            std::cout << this->size_z() << ' ' << max_load_factor() << ' '
+                      << this->capacity() << std::endl;
+            throw std::overflow_error(
+                "The wave function is almost full. Please increase max_memory "
+                "(max_wavefunction_size) or z_threshold.");
+        }
+    }
+
+    void reinsert_new_z(key_type &det, data_type new_z)
+    {
+        mapped_type vec_xz = {};
+        mapped_type val_new = {};
+        add_assign_second_half(val_new, new_z);
+        auto update_functor = [new_z, &vec_xz](mapped_type &val) {
+            vec_xz = val;
+            assign_second_half(val, new_z);
             return false;
         };
-        data_.upsert(key, update_fn, val_new);
+        upsert(data_, det, update_functor, val_new);
 
-        return;
+        // Update xz
+        // x*(z+dz) = xz + x*dz
+        if constexpr (NSTATES == 1) {
+            this->update_xz(vec_xz[0] * (new_z - vec_xz[1]));
+        } else {
+            data_matrix_type delta_xz = {};
+            for (size_t i = 0; i < NSTATES; i++)
+                for (size_t j = 0; j < NSTATES; j++)
+                    delta_xz[IDX(i, j)] = vec_xz[X(i)] * (new_z[j] - vec_xz[Z(j)]);
+            this->update_xz(delta_xz);
+        }
     }
 
-    size_t size()
+    template <typename Func>
+    void loop(Func&& f) {
+        data_.loop(std::forward<Func>(f));
+    }
+
+    template <typename Func>
+    void loop(Func&& f) const {
+        data_.loop(std::forward<Func>(f));
+    }
+    /* I/O */
+    int load_wavefunction(const std::string& path)
     {
-        return size_;
+        std::ifstream file(path, std::ios::in | std::ios::binary);
+        if (!file) {
+            std::cerr << "Error opening file for reading: " << path << "\n";
+            return -1;
+        }
+        try {
+            data_.load_from_file(file);
+        } catch (const std::exception& e) {
+            std::cerr << "Exception: " << e.what() << std::endl;
+            return -1; // Return error code for exception
+        }
+        size_t size_x, size_z;
+        load(file, size_x);
+        load(file, size_z);
+        std::cout << "Load wavefunction with size_x = " << size_x
+                    << ", size_z = " << size_z << std::endl;
+        size_ = {size_x, size_z};
+        data_matrix_type xx_check = {};
+        data_matrix_type xz_check = {};
+        load(file, xx_check);
+        load(file, xz_check);
+        load(file, scale_factor_);
+        this->print_xx_xz(xx_check, xz_check);
+
+        norm_square_[0] = this->to_quad_precision(xx_check);
+        dot_product_ = this->to_quad_precision(xz_check);
+        file.close();
+        return 0; // Success
     }
 
-    size_t update_size(size_t n_new_element)
+
+    int dump_wavefunction(const std::string& path)
     {
-        size_ += n_new_element;
-        return size_;
+        std::ofstream file(path, std::ios::out | std::ios::binary);
+        if (!file) {
+            std::cerr << "Error opening file for writing: " << path << "\n";
+            return -1;
+        }
+        try {
+            data_.dump_to_file(file);
+        } catch (const std::exception& e) {
+            std::cerr << "Exception: " << e.what() << std::endl;
+            return -1; // Return error code for exception
+        }
+        size_t size_x = this->size_x();
+        size_t size_z = this->size_z();
+        std::cout << "Dump wavefunction with size_x = " << size_x
+                    << ", size_z = " << size_z << std::endl;
+        dump(file, size_x);
+        dump(file, size_z);
+
+        data_matrix_type xx = this->get_xx_double();
+        data_matrix_type xz = this->get_xz_double();
+        double scale = (double) scale_factor_;
+        dump(file, xx);
+        dump(file, xz);
+        dump(file, scale);
+        file.close();
+        return 0; // Success
     }
+
 };
 
 #endif

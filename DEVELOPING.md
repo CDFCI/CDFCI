@@ -1,33 +1,107 @@
-# Developing Guide
+# Developing Guide for CDFCI
 
-This is a basic list of things to notice for developing CDFCI.
+This guide provides a technical overview for developers working on the CDFCI codebase.
 
-## Interested in improving the code?
-Please [contact us](mailto:zhe.wang3@duke.edu) first or open an issue.
+---
 
-The current code is the beta version and we are still making big changes. Please contact us and get the latest status of the code, so that we can work more efficiently.
+## 🔧 Compiler & Standard
 
-***
+* **C++17** is the required standard.
+* Cross-platform compatibility is maintained (Linux, macOS).
+* Main compiler targets: `g++ >= 9`, `clang++ >= 10`
 
-## Git Development Cycle
-We use [GitHub Flow](https://gitversion.readthedocs.io/en/latest/git-branching-strategies/githubflow/) since the project is small. The steps are
+---
 
-1. Update `master` to latest upstream code.
-2. Create a feature branch `git checkout -b feature/description`.
-3. Do the feature/work.
-4. Push feature branch to `origin`.
-5. Create pull request from `origin/ -> upstream/master`.
-6. Review, fix raised comments, merge your PR or even better, get someone else to.
+## 🗂 Directory Structure
 
-The codes in `master` and `feature` should always compile. For codes that are unable to compile, please create a new branch `debug` or `working`, and merge back to `feature` after completion or debugging.
+```
+CDFCI/
+├── bin/                    # Compiled executables (ignored by Git)
+├── data/                   # Sample FCIDUMP data files
+├── doc/                    # Project documentation
+├── examples/               # Example input JSONs and configurations
+│   ├── demo_input_*.json
+│   ├── frozen_core.json
+│   └── symm_conn.json
+├── papers/                 # Benchmark scripts for publication
+│   ├── 2019-cdfci/
+│   ├── 2020-optorbfci/
+│   ├── 2023-xcdfci/
+│   └── 2025-mcdfci/
+├── regression_tests/       # Functional tests (small molecules)
+├── src/                    # Main source code
+│   ├── lib/                # External dependencies (optional)
+│   └── main.cpp
+├── test/                   # Unit tests
+├── Makefile                # Build system (customized)
+├── LICENSE
+└── README.md
+```
 
-## C++ Standard
-We use C++14 standard.
+---
 
-## Directory
-- ```src``` The source code
-  - ```main.cpp``` the file with the ```main``` function
-  - ```lib``` the third-party libraries used
-- ```test``` The test code
-  - ```src``` the test source code
-  - ```data``` the input of test quantum systems
+## 🔄 Build Instructions
+
+### Dependencies:
+
+* Eigen
+* OpenMP (optional but recommended)
+
+### Build
+
+```bash
+make clean && make -j
+```
+
+Optional targets:
+
+* `make check` — test gate alias
+* `make test` — run regression tests
+* `make install PREFIX=/path` — install binaries to `${PREFIX}/bin`
+* `make uninstall PREFIX=/path` — uninstall binaries
+* `make release-check` — clean build + tests + examples
+* `make format` — run clang-format
+
+---
+
+## 🌱 Coding Style
+
+We follow Visual Studio / LLVM-style formatting. See `.clang-format`:
+
+```json
+{
+    "BasedOnStyle": "LLVM",
+    "IndentWidth": 4,
+    "BreakBeforeBraces": "Allman",
+    "ColumnLimit": 0
+}
+```
+
+Please run:
+
+```bash
+make format
+```
+
+---
+
+## 🧪 Testing Strategy
+
+* Minimal working tests in `regression_tests/`
+* Target molecules: H2O, C2, N2, etc.
+* Validate correctness by comparing with known energies from literature
+
+---
+
+## 🧭 Version Control Best Practices
+
+* Work on branches from `develop`
+* Keep commits small and meaningful
+* Sync with upstream regularly
+
+See [CONTRIBUTING.md](./CONTRIBUTING.md) for pull request workflow.
+
+---
+
+For questions, contact [yingzhouli@fudan.edu.cn](mailto:yingzhouli@fudan.edu.cn) or [yuejiazhang21@m.fudan.edu.cn](yuejiazhang21@m.fudan.edu.cn).
+

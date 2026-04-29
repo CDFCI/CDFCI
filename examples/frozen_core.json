@@ -1,0 +1,9 @@
+{
+    "tools": {
+        "frozen_orbital": {
+            "fcidump_path": "../data/h2o_sto3g_psi4.FCIDUMP",
+            "fcidump_frozen_path": "FCIDUMP_FROZEN",
+            "num_frozen_orbital": 2
+        }
+    }
+}

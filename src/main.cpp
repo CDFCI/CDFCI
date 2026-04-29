@@ -5,31 +5,36 @@
 // |  `----.|  '--'  ||  |     |  `----.|  |
 //  \______||_______/ |__|      \______||__|
 //
-// Coordinate Descent Full Configuration Interaction (CDFCI) package in C++14
+// Coordinate Descent Full Configuration Interaction (CDFCI) package in C++17
 // https://github.com/quan-tum/CDFCI
 //
-// Copyright (c) 2019, Zhe Wang, Yingzhou Li and Jianfeng Lu
+// Copyright (c) 2019-2025, CDFCI Developers and Contributors
 // All rights reserved.
 //
 // This source code is licensed under the BSD 3-Clause License found in the
 // LICENSE file in the root directory of this source tree.
 
-#include "run_wrapper.h"
+#include "driver.h"
 
 int main(int argc, char *argv[])
 {
     try
     {
-        print_header();
-        std::string input_file = check_argument(argc, argv);
-        Option option = read_input(input_file);
-        run_cdfci_wrapper(option);
+        if (argc < 2)
+        {
+            throw std::invalid_argument("No input file specified. Please use the path "
+                                        "of the input file as the first argument.");
+        }
+        std::string input_file = argv[1];
+
+        CDFCIProgramDriver cdfci_driver(input_file);
+        cdfci_driver.run();
         return 0;
     }
-    catch(const std::exception& e)
+    catch (const std::exception &e)
     {
-        std::cerr << std::endl << "ERROR: " << e.what() << std::endl;
+        std::cerr << std::endl
+                  << "ERROR: " << e.what() << std::endl;
         return 1;
     }
-    
 }

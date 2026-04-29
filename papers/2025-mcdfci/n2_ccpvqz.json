@@ -1,0 +1,22 @@
+{
+    "hamiltonian": {
+        "type": "molecule",
+        "molecule": {
+            "fcidump_path": "../data/n2_cc-pvqz.fcidump",
+            "threshold": 0.0
+        }
+    },
+    "solver":{
+        "type": "cdfci",
+        "cdfci": {
+            "coordinate_update": "eig",
+            "num_iterations": 40000,
+            "report_interval": 10,
+            "z_threshold": 5e-5,
+            "z_threshold_search": false,
+            "num_coordinates": 256,
+            "stopping_dx_threshold": 1e-06
+        }
+    },
+    "max_memory": 500
+}

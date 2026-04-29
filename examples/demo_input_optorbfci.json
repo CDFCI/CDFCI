@@ -1,0 +1,41 @@
+{
+    "hamiltonian": {
+        "type": "molecule",
+        "molecule": {
+            "fcidump_path": "../data/h2o_sto3g_psi4.FCIDUMP",
+            "threshold": 0.0
+        }
+    },
+    "solver": {
+        "type": "cdfci",
+        "cdfci": {
+            "num_iterations": 50000,
+            "report_interval": 10000,
+            "z_threshold": 0,
+            "z_threshold_search": false,
+            "stopping_dx_threshold": 5e-6
+        }
+    },
+    "rdm": {
+        "spin_seperate": false,
+        "compute_1RDM": true,
+        "compute_2RDM": true,
+        "method_2RDM": "auto"
+    },
+    "optimal_orbitals": {
+        "num_orbitals": 6,
+        "init_iteration": 0,
+        "max_iteration": 3,
+        "tol": 1e-4,
+        "optimizer": {
+            "max_iterations": 10000,
+            "report_freq": 1000,
+            "max_rand_iter": 0,
+            "tolerance": 1e-7,
+            "initial_stepsize": 1e-4
+        }
+    },
+"verbose": 3,
+"max_memory": 0.005,
+"max_load_factor": 0.79
+}

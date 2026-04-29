@@ -1,0 +1,20 @@
+{
+    "hamiltonian": {
+        "type": "molecule",
+        "molecule": {
+            "fcidump_path": "../data/h2o_sto3g_psi4.FCIDUMP",
+            "threshold": 0.0
+        }
+    },
+    "solver":{
+        "type": "cdfci",
+        "cdfci": {
+            "num_iterations": 15000,
+            "report_interval": 1000,
+            "z_threshold": 0,
+            "z_threshold_search": false,
+            "num_coordinates": 10
+        }
+    },
+    "max_memory": 0.005
+}

@@ -1,0 +1,18 @@
+{
+    "hamiltonian": {
+        "type": "molecule",
+        "molecule": {
+            "fcidump_path": "../data/n2_ccpvdz_psi4_triplet.FCIDUMP",
+            "threshold": 0.0
+        }
+    },
+    "solver":{
+        "cdfci": {
+            "num_iterations": 10000,
+            "report_interval": 1000,
+            "z_threshold": 0,
+            "z_threshold_search": false
+        }
+    },
+    "max_memory": 0.8
+}
