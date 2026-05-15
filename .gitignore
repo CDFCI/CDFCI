@@ -4,4 +4,8 @@ debug/*
 test/cdfci_test
 test/cdfci_test_omp
 
+python/**/__pycache__
+python/*.so
+
 data/*.fcidump
+papers/**/*.fcidump

@@ -1,5 +1,33 @@
 # Reproducing Numerical Results
 
+## Reproducing Results for the Software Paper (2026)
+
+Use the scripts in `2026-software/` to reproduce the software paper experiments.
+The workflow is based on the **PySCF** package, which must be installed before running any of the scripts.
+
+Install **PySCF** using either `pip` or `conda`:
+
+```bash
+# Using pip
+pip install pyscf
+
+# Or, using conda
+conda install -c conda-forge pyscf
+```
+
+Generate FCIDUMP files and run the calculations:
+
+```bash
+cd 2026-software
+python3 generate_fcidump.py
+
+# Example run command
+cd table2
+../../../bin/xcdfci_omp input.json
+```
+
+## Reproducing Results for Other Papers
+
 ## Overview
 This directory provides the scripts and instructions required to reproduce the numerical results reported in the paper.
 The workflow is based on the **PySCF** package, which must be installed before running any of the scripts.

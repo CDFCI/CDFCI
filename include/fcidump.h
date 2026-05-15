@@ -8,7 +8,7 @@
 // Coordinate Descent Full Configuration Interaction (CDFCI) package in C++17
 // https://github.com/quan-tum/CDFCI
 //
-// Copyright (c) 2019-2025, CDFCI Developers and Contributors
+// Copyright (c) 2019-2026, CDFCI Developers and Contributors
 // All rights reserved.
 //
 // This source code is licensed under the BSD 3-Clause License found in the
@@ -176,7 +176,7 @@ public:
         std::ifstream f(file_path);
         if (f.fail())
         {
-            throw std::invalid_argument(" file " + file_path);
+            throw std::invalid_argument("FCIDUMP file fails to open: " + file_path);
         }
 
         // Read FCIDUMP header.

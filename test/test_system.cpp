@@ -8,14 +8,14 @@
 // Coordinate Descent Full Configuration Interaction (CDFCI) package in C++17
 // https://github.com/quan-tum/CDFCI
 //
-// Copyright (c) 2019-2025, CDFCI Developers and Contributors
+// Copyright (c) 2019-2026, CDFCI Developers and Contributors
 // All rights reserved.
 //
 // This source code is licensed under the BSD 3-Clause License found in the
 // LICENSE file in the root directory of this source tree.
 
 #include "test.h"
-#include "../src/driver.h"
+#include "../include/driver.h"
 
 bool test_system(std::string sys_name, std::string path)
 {
@@ -23,7 +23,8 @@ bool test_system(std::string sys_name, std::string path)
     std::string input_file = path + "/" + sys_name + "/input.json";
     CDFCIProgramDriver cdfci_driver(input_file);
     // Run CDFCI
-    double energy = cdfci_driver.run();
+    Result result = cdfci_driver.run();
+    double energy = result.energy;
     // Read reference
     std::ifstream f(path + "/" + sys_name + "/" + "result.txt");
     double ref_energy, ref_error;

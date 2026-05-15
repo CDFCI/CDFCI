@@ -8,7 +8,7 @@
 // Coordinate Descent Full Configuration Interaction (CDFCI) package in C++17
 // https://github.com/quan-tum/CDFCI
 //
-// Copyright (c) 2019-2025, CDFCI Developers and Contributors
+// Copyright (c) 2019-2026, CDFCI Developers and Contributors
 // All rights reserved.
 //
 // This source code is licensed under the BSD 3-Clause License found in the
@@ -212,5 +212,16 @@ inline bool load(std::istream& is, T& obj) {
     }
 }
 
+// --------- Result struct ---------
+struct Result {
+    NumericalType energy = 0.0;
+    std::vector<NumericalType> state_energies;
+    size_t iterations = 0;
+    size_t report_interval = 0;
+    std::vector<NumericalType> energy_history;
+    std::vector<size_t> x_size_history;
+    std::vector<size_t> z_size_history;
+    std::vector<double> time_history;
+};
 
 #endif

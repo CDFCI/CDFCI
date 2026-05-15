@@ -13,6 +13,10 @@ ifeq (ic, $(findstring ic, $(CC)))
 endif
 CCFLAG += $(AVX_FLAG)
 
+# include path for header files
+IFLAG = -I./src -I./include
+CCFLAG += $(IFLAG)
+
 # compiler OpenMP flag
 OMP_FLAG = -fopenmp
 # Mac OS X uses -openmp
@@ -59,6 +63,15 @@ SOURCE_TOOLS = src/tools.cpp
 SOURCE_OPTORBFCI = src/optorbfci.cpp
 SOURCE_XCDFCI = src/xcdfci.cpp
 
+# Python module
+PYTHON        := python3
+PY_INC        := $(shell $(PYTHON)-config --includes)
+PY_LDFLAGS    := $(shell $(PYTHON)-config --ldflags)
+PY_EXT_SUFFIX := $(shell $(PYTHON)-config --extension-suffix)
+
+PYMOD_SRC     := src/pycdfci.cpp
+PYMOD_OUT     := python/_cdfci$(PY_EXT_SUFFIX)
+
 # build test
 # compiler
 # Use g++ for CI integration
@@ -104,6 +117,14 @@ all: cdfci tools xcdfci optorbfci
 
 .PHONY: check
 check: test
+
+$(PYMOD_OUT): $(PYMOD_SRC)
+	$(CC) $(CCFLAG) -shared -fPIC $(OMP_FLAG) $(PY_INC) $(PYMOD_SRC) -o $@ $(PY_LDFLAGS) $(LFLAG)
+
+python-module: $(PYMOD_OUT)
+
+clean-python:
+	rm -f $(PYMOD_OUT)
 
 .PHONY: debug
 debug:

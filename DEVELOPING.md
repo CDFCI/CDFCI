@@ -23,16 +23,18 @@ CDFCI/
 │   ├── demo_input_*.json
 │   ├── frozen_core.json
 │   └── symm_conn.json
+├── include/
 ├── papers/                 # Benchmark scripts for publication
 │   ├── 2019-cdfci/
 │   ├── 2020-optorbfci/
 │   ├── 2023-xcdfci/
 │   └── 2025-mcdfci/
+├── python/
 ├── regression_tests/       # Functional tests (small molecules)
 ├── src/                    # Main source code
 │   ├── lib/                # External dependencies (optional)
-│   └── main.cpp
-├── test/                   # Unit tests
+│   └── *.cpp
+├── test/                   # Regression tests
 ├── Makefile                # Build system (customized)
 ├── LICENSE
 └── README.md

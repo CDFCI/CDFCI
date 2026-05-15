@@ -1,0 +1,23 @@
+{
+    "hamiltonian": {
+        "type": "molecule",
+        "molecule": {
+            "fcidump_path": "SI-benzene-paper-DMRG/FCIDUMP_optSHCIorbs",
+            "threshold": 0.0
+        }
+    },
+    "solver":{
+        "type": "cdfci",
+        "cdfci": {
+            "num_iterations": 100000,
+            "report_interval": 200,
+            "z_threshold": 0.01,
+            "z_threshold_search": false,
+            "num_coordinates": 64,
+            "stopping_dx_threshold": 1e-5,
+            "save_configuration": true,
+            "save_configuration_location": "/tmp/benzene_5e-4.chk"
+        }
+    },
+    "max_memory": 20
+}

@@ -8,7 +8,7 @@
 // Coordinate Descent Full Configuration Interaction (CDFCI) package in C++17
 // https://github.com/quan-tum/CDFCI
 //
-// Copyright (c) 2019-2025, CDFCI Developers and Contributors
+// Copyright (c) 2019-2026, CDFCI Developers and Contributors
 // All rights reserved.
 //
 // This source code is licensed under the BSD 3-Clause License found in the
@@ -96,6 +96,13 @@ public:
 
     NumericalType stopping_dx_damping_factor;  ///< Damping factor to control convergence rate of dx accumulation.
     NumericalType stopping_dx_threshold;       ///< Threshold for convergence of accumulated coordinate updates.
+
+    // Results
+    NumericalType ground_state_energy; ///< Best energy found at convergence.
+    size_t iterations;                ///< Total iterations performed.
+    std::vector<size_t> x_size_history; ///< History of x wavefunction sizes at each report interval.
+    std::vector<size_t> z_size_history; ///< History of z wavefunction sizes at each report interval.
+    std::vector<double> time_history;    ///< History of iteration times at
 
     int verbose = 2;
 
@@ -223,14 +230,13 @@ public:
         }
     }
 
-    virtual void output_line(const size_t iteration,
-                             const data_type energy,
-                             const NumericalType dx,
-                             const size_t x_size,
-                             const size_t z_size,
-                             const size_t H_i_size,
-                             const double time
-                             ) const = 0;
+    virtual void output_line(size_t iteration,
+                             data_type energy,
+                             NumericalType dx,
+                             size_t x_size,
+                             size_t z_size,
+                             size_t H_i_size,
+                             double time) = 0;
 
     virtual void initialize(H &h, W &vec_xz, wff_type &sub_xz) = 0;
 
@@ -241,9 +247,9 @@ public:
                                    const wff_type &det_picked) = 0;
 
     virtual void output_final(const W &vec_xz,
-                              const size_t &iterations) = 0;
+                              size_t iterations) = 0;
 
-    virtual NumericalType get_ground_state_energy() const = 0;
+    virtual Result get_result() const = 0;
 
     int solve(H                      &h,
               CoordinatePick<W>      &coord_pick,
@@ -445,7 +451,6 @@ public:
 
     using Solver<H, W>::opt;
 
-    NumericalType ground_state_energy;
     NumericalType hard_stop_energy_level;      ///< Optional hard stop condition: terminate when energy drops below this level.
 
     /* Constructors */
@@ -560,14 +565,13 @@ public:
         return (dx_accumulated < this->stopping_dx_threshold);
     }
 
-    void output_line(const size_t iteration,
-                     const data_type energy,
-                     const NumericalType dx,
-                     const size_t x_size,
-                     const size_t z_size,
-                     const size_t H_i_size,
-                     const double time
-                    ) const
+    void output_line(size_t iteration,
+                     data_type energy,
+                     NumericalType dx,
+                     size_t x_size,
+                     size_t z_size,
+                     size_t H_i_size,
+                     double time)
     {
         if (this->verbose == 0) return;
 
@@ -587,26 +591,37 @@ public:
         std::cout << std::setw(10) << std::fixed
                     << std::setprecision(2) << time;
         std::cout << std::endl;
+
+        this->x_size_history.push_back(x_size);
+        this->z_size_history.push_back(z_size);
+        this->time_history.push_back(time);
     }
 
-    void output_final(const W &vec_xz, const size_t &iterations)
+    void output_final(const W &vec_xz, size_t iterations)
     {
         // Store the final computed energy in the Solver class.
-        ground_state_energy = vecmath::index(vec_xz.get_variational_energy(), 0);
+        this->ground_state_energy = vecmath::index(vec_xz.get_variational_energy(), 0);
+        this->iterations = iterations;
         if (this->verbose == 0) return;
 
         if (this->shifted) {
-            ground_state_energy += this->shift_value;
+            this->ground_state_energy += this->shift_value;
         }
         std::cout << "Final FCI Energy: " << std::setw(30)
                     << std::right << std::fixed
-                    << std::setprecision(16) << ground_state_energy << std::endl;
-        std::cout << "Iterations: " << iterations << std::endl;
+                    << std::setprecision(16) << this->ground_state_energy << std::endl;
+        std::cout << "Iterations: " << this->iterations << std::endl;
     }
 
-    NumericalType get_ground_state_energy() const
+    Result get_result() const
     {
-        return ground_state_energy;
+        Result result;
+        result.energy = this->ground_state_energy;
+        result.iterations = this->iterations;
+        result.x_size_history = this->x_size_history;
+        result.z_size_history = this->z_size_history;
+        result.time_history = this->time_history;
+        return result;
     }
 };
 
@@ -622,6 +637,7 @@ public:
     using Solver<H, W>::opt;
 
     int num_states;
+    std::vector<NumericalType> state_energies;
 
     /* Constructors. CDFCI Constructor is called by default */
     XCDFCISolver() { }
@@ -707,14 +723,13 @@ public:
         return ref_vec;
     }
 
-    void output_line(const size_t iteration,
-                     const data_type energy,
-                     const NumericalType dx,
-                     const size_t x_size,
-                     const size_t z_size,
-                     const size_t H_i_size,
-                     const double time
-                    ) const
+    void output_line(size_t iteration,
+                     data_type energy,
+                     NumericalType dx,
+                     size_t x_size,
+                     size_t z_size,
+                     size_t H_i_size,
+                     double time)
     {
         if (this->verbose == 0) return;
 
@@ -740,36 +755,43 @@ public:
 
     }
 
-    void output_final(const W &vec_xz, const size_t &iterations)
+    void output_final(const W &vec_xz, size_t iterations)
     {
-        auto energy = vec_xz.get_variational_energy();
-        this->ground_state_energy = vecmath::index(energy, 0);
-
-        if (this->shifted)
-        {
-            this->ground_state_energy += this->shift_value;
-        }
-
-        if (this->verbose == 0) return;
-
-        std::cout << "Final FCI Energies:" << std::endl;
+        this->iterations = iterations;
+        state_energies.clear();
         for (int i = 0; i < num_states; ++i)
         {
-            auto state_energy = vecmath::index(energy, i);
-            if (this->shifted)
-            {
-                state_energy += this->shift_value;
-            }
-            std::cout << "  State " << i << ": " << std::setw(30)
-                      << std::right << std::fixed << std::setprecision(16)
-                      << state_energy << std::endl;
+            state_energies.push_back(vecmath::index(vec_xz.get_variational_energy(), i));
         }
-        std::cout << "Iterations: " << iterations << std::endl;
+
+        if (!state_energies.empty())
+        {
+            this->ground_state_energy = state_energies[0];
+        }
+
+        if (this->verbose == 0)
+            return;
+
+        std::cout << "Final XCDFCI Energies:" << std::endl;
+        for (int i = 0; i < static_cast<int>(state_energies.size()); ++i)
+        {
+            std::cout << "State " << i << ": "
+                      << std::setw(30) << std::right << std::fixed
+                      << std::setprecision(16) << state_energies[i] << std::endl;
+        }
+        std::cout << "Iterations: " << this->iterations << std::endl;
     }
 
-    NumericalType get_ground_state_energy() const
+    Result get_result() const
     {
-        return this->ground_state_energy;
+        Result result;
+        result.energy = this->ground_state_energy;
+        result.state_energies = state_energies;
+        result.iterations = this->iterations;
+        result.x_size_history = this->x_size_history;
+        result.z_size_history = this->z_size_history;
+        result.time_history = this->time_history;
+        return result;
     }
 };
 

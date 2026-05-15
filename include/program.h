@@ -8,7 +8,7 @@
 // Coordinate Descent Full Configuration Interaction (CDFCI) package in C++17
 // https://github.com/quan-tum/CDFCI
 //
-// Copyright (c) 2019-2025, CDFCI Developers and Contributors
+// Copyright (c) 2019-2026, CDFCI Developers and Contributors
 // All rights reserved.
 //
 // This source code is licensed under the BSD 3-Clause License found in the
@@ -85,7 +85,7 @@ public:
 
     ~CDFCIProgram() {}
 
-    NumericalType run()
+    Result run()
     {
         det_type::constuct_masks();
         wf_type vec_xz;
@@ -122,7 +122,7 @@ public:
             });
         }
 
-        return solver_ptr->get_ground_state_energy();
+        return solver_ptr->get_result();
     }
 
     void print_header()
@@ -167,10 +167,11 @@ public:
 
     ~XCDFCIProgram() {}
 
-    void run()
+    Result run()
     {
         det_type::constuct_masks();
         solver_ptr->solve(*ham_ptr, opt["solver"]["num_states"]);
+        return solver_ptr->get_result();
     }
 
     void print_header()
@@ -292,7 +293,8 @@ public:
             fci = rotate_basis(fci, U);
             // run cdfci
             CDFCIProgram<N> cdfci(opt, fci);
-            energy = cdfci.run();
+            Result result = cdfci.run();
+            energy = result.energy;
             cdfci.rdm_ptr->output_rdm(zero_rdm, one_rdm, two_rdm);
 
             init_iter = 1;
@@ -328,7 +330,8 @@ public:
             fci = rotate_basis(fci, U);
             // run cdfci
             CDFCIProgram<N> cdfci(opt, fci);
-            NumericalType   new_energy = cdfci.run();
+            Result result = cdfci.run();
+            NumericalType   new_energy = result.energy;
 
             // check convergence for optorbfci
             if (fabs(new_energy - energy) < opt["optimal_orbitals"]["tol"])

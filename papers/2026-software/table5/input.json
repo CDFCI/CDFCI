@@ -1,0 +1,28 @@
+{
+    "hamiltonian": {
+        "type": "hubbard_k",
+        "hubbard_k": {
+            "hubbard_t": 1,
+            "hubbard_u": 0.5,
+            "lattice": [4, 4],
+            "nelec": 16,
+            "ms2": 0
+        }
+    },
+    "solver":{
+        "type": "cdfci",
+        "cdfci": {
+            "load_configuration": true,
+            "load_configuration_location": "hubbard_4x4_half_filled_init.dat",
+            "recalculate_z_on_load": true,
+            "num_iterations": 100000,
+            "report_interval": 1000,
+            "z_threshold": 0,
+            "z_threshold_search": false,
+            "num_coordinates": 50,
+            "stopping_dx_threshold": 1e-07,
+            "stopping_dx_damping_factor": 0.0
+        }
+    },
+    "max_memory": 5
+}

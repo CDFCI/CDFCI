@@ -8,7 +8,7 @@
 // Coordinate Descent Full Configuration Interaction (CDFCI) package in C++17
 // https://github.com/quan-tum/CDFCI
 //
-// Copyright (c) 2019-2025, CDFCI Developers and Contributors
+// Copyright (c) 2019-2026, CDFCI Developers and Contributors
 // All rights reserved.
 //
 // This source code is licensed under the BSD 3-Clause License found in the
@@ -46,6 +46,7 @@
 class CDFCIProgramDriver
 {
 public:
+    // Default option values. They will be updated by the input if provided.
     Option opt = {
         {"hamiltonian",
                  {{"type", "molecule"},
@@ -84,19 +85,23 @@ public:
     CDFCIProgramDriver(std::string input_file)
     {
         read_input(input_file);
+    }
 
-        get_size_t_per_det();
-        get_bytes_per_entry();
-        get_max_wavefunction_size();
-        update_option();
+    CDFCIProgramDriver(Option option)
+    {
+        read_input(option);
     }
 
     ~CDFCIProgramDriver() {}
 
     void read_input(const std::string input_file)
     {
-        auto option = option_from_file(input_file);
+        Option option = option_from_file(input_file);
+        read_input(option);
+    }
 
+    void read_input(Option option)
+    {
         opt.merge_patch(option);
 
         verbose         = opt["verbose"];
@@ -104,6 +109,11 @@ public:
         max_load_factor = opt["max_load_factor"];
 
         validate_option();
+
+        get_size_t_per_det();
+        get_bytes_per_entry();
+        get_max_wavefunction_size();
+        update_option();
 
         return;
     }
@@ -155,10 +165,7 @@ public:
 
     void update_option()
     {
-        opt["hamiltonian"]["molecule"]["verbose"] = verbose;
-        opt["hamiltonian"]["hubbard_k"]["verbose"] = verbose;
         std::string solver = opt["solver"]["type"];
-        opt["solver"][solver]["verbose"] = verbose;
         opt["solver"][solver]["max_load_factor"] = max_load_factor;
         opt["solver"][solver]["max_wavefunction_size"] = max_wavefunction_size;
         return;
@@ -243,7 +250,7 @@ public:
         return;
     }
 
-    NumericalType run() const
+    Result run() const
     {
         if (verbose > 1)
         {
@@ -267,7 +274,7 @@ public:
          Please refer to the documentation, modify, recompile the code and run again.");
             break;
         }
-        return 0.0;
+        return Result();
     }
 };
 
@@ -334,7 +341,7 @@ public:
         bytes_per_entry = bytes_per_size_t * size_t_per_det + bytes_per_value * num_states_preallocated;
     }
 
-    void run() const
+    Result run() const
     {
         if (verbose > 1)
         {
@@ -370,6 +377,7 @@ public:
          Please refer to the documentation, modify, recompile the code and run again.");
             break;
         }
+        return Result();
     }
 };
 
@@ -389,6 +397,11 @@ public:
             {"report_freq", 10},
             {"tolerance", 1e-7},
             {"initial_stepsize", 1e-4}}}}}};
+
+        OptOrbFCIProgramDriver()
+        {
+            opt.merge_patch(opt_optorb);
+        }
 
     OptOrbFCIProgramDriver(std::string input_file)
     {

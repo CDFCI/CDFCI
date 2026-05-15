@@ -4,7 +4,7 @@
 
 CDFCI (Coordinate Descent Full Configuration Interaction) is a modern, efficient solver for the ground-state electronic structure problem in quantum chemistry. It is implemented in modern C++17 with support for large-scale sparse wavefunctions and adaptive compression strategies.
 
-📖 中文说明请参见：[README\_zh.md](README_zh.md)
+📖 中文说明请参见：[README\_zh.md](doc/README_zh.md)
 
 ---
 
@@ -23,7 +23,12 @@ Key features:
 
 ## 📄 Citation
 
-CDFCI implements algorithms from the following papers,
+The primary paper for this software package is:
+
+* **CDFCI Software Paper**
+  Y. Zhang, Z. Wang, J. Lu, Y. Li, [*arXiv:2605.04483*, 2026](https://arxiv.org/abs/2605.04483)
+
+Algorithm-specific papers:
 
 * **CDFCI Core Algorithm**
   Z. Wang, Y. Li, J. Lu, [*JCTC*, 15(6), 2019](https://pubs.acs.org/doi/10.1021/acs.jctc.9b00138)
@@ -47,6 +52,8 @@ Please cite the relevant paper(s) if you use this software.
 ---
 
 ## 🚀 Getting Started
+
+For Python workflows and advanced scripting usage, see the [Python Interface User Manual](./PYTHON_INTERFACE_USER_MANUAL.md).
 
 ### Clone and Build
 
@@ -108,6 +115,11 @@ The solver accepts a JSON input file. Example:
 
 More examples, including [a full documentation for input and output](./examples/README.md), can be found in the `examples/` directory.
 
+Quickstart:
+```bash
+cd examples && ../bin/cdfci demo_input_cdfci.json
+```
+
 ---
 
 ## 🧪 Testing
@@ -124,22 +136,35 @@ Example systems and expected energies are provided in `regression_tests`.
 
 ## 📊 Reproducibility
 
-The `examples/` and `papers/` directories contain all scripts and input files to reproduce published results. Requires Python and [PySCF](https://github.com/pyscf/pyscf) to generate FCIDUMP files.
+The `examples/` directory mainly contains simple, small-scale examples for quick runs. The `papers/` directory contains examples discussed in the experimental sections of related papers, including those from the primary software paper and the algorithm-specific papers listed above. Python and [PySCF](https://github.com/pyscf/pyscf) are required to generate FCIDUMP files.
 
 ---
 
 ## 👥 Developers
 
-* Zhe Wang (Mathematics Department, Duke University)
-* [Jianfeng Lu](https://services.math.duke.edu/~jianfeng/) (Mathematics Department, Duke University)
-* [Yingzhou Li](http://yingzhouli.com/) (School of Mathematical Sciences, Fudan University)
 * [Yuejia Zhang](https://ninotreve.github.io/) (School of Mathematical Sciences, Fudan University)
+* Zhe Wang (Department of Mathematics, Duke University)
+* [Jianfeng Lu](https://services.math.duke.edu/~jianfeng/) (Department of Mathematics,
+  Department of Physics and Department of Chemistry, Duke University)
+* [Yingzhou Li](http://yingzhouli.com/) (School of Mathematical Sciences and
+  Shanghai Key Laboratory for Contemporary Applied Mathematics,
+  Fudan University)
+
 
 ---
 
 ## 🪙 Acknowledgements
 
-This work was supported in part by the U.S. National Science Foundation (NSF) under Grant Nos. DMS-1454939 and DMS-2012286; by the National Natural Science Foundation of China under Grant Nos. 12271109 and 12526211; by the Shanghai Pilot Program for Basic Research-Fudan University under Grant No. 21TQ1400100 (22TQ017); and by the Scientific Research Innovation Capability Support Project for Young Faculty under Grant No. SRICSPYF-ZY2025159.
+This work was supported in part
+by the National Natural Science Foundation of China under Grant
+Nos. 12271109 and 12526211;
+by the U.S. National Science Foundation
+(NSF) under Grant Nos. DMS-1454939 and DMS-2012286;
+by the Shanghai Pilot Program for Basic Research-Fudan University
+under Grant No. 21TQ1400100 (22TQ017);
+by the Scientific Research Innovation Capability Support Project
+for Young Faculty under Grant No. SRICSPYF-ZY2025159;
+and by the Xuemin Institute of Advanced Studies, Fudan University.
 
 ---
 

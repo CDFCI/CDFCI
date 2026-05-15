@@ -1,0 +1,24 @@
+{
+    "hamiltonian": {
+        "type": "molecule",
+        "molecule": {
+            "fcidump_path": "data.fcidump",
+            "threshold": 0.0
+        }
+    },
+    "solver":{
+        "type": "xcdfci",
+        "xcdfci": {
+            "num_iterations": 10000000,
+            "report_interval": 10000,
+            "z_threshold": 1e-4,
+            "z_threshold_search": true,
+            "stopping_dx_damping_factor": 0.9,
+            "stopping_dx_threshold": 1e-5,
+            "save_configuration": true,
+            "save_configuration_location": "/tmp/c2h2-avdz.dump"
+        }
+    },
+    "max_memory": 20,
+    "num_states": 8
+}

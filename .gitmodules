@@ -1,3 +1,7 @@
 [submodule "src/lib/eigen"]
 	path = src/lib/eigen
 	url = https://gitlab.com/libeigen/eigen
+
+[submodule "src/lib/pybind11"]
+	path = src/lib/pybind11
+	url = https://github.com/pybind/pybind11.git
