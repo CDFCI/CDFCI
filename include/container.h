@@ -21,9 +21,11 @@
 #include "lib/robin_hood/robin_hood.h"
 #include "config.h"
 #include <fstream>
+#include <iterator>
 #include <type_traits>
 #include <unordered_map>
 #include <optional>
+#include <vector>
 
 /* Single thread hash table */
 
@@ -281,8 +283,8 @@ public:
 
     template <typename Func>
     void loop(Func&& f) const {
-        auto locked_table = data_.lock_table();
-        for (const auto& elem : data_)
+        auto locked_table = const_cast<hash_map&>(data_).lock_table();
+        for (const auto& elem : locked_table)
             f(elem);
         locked_table.unlock();
     }
@@ -390,6 +392,8 @@ public:
     size_type capacity() const { return data_.capacity(); }
     void      clear() { data_.clear(); }
     void      reserve(size_type n) { data_.reserve(n); }
+    value_type &operator[](size_type idx) { return data_[idx]; }
+    const value_type &operator[](size_type idx) const { return data_[idx]; }
     void      push_back(value_type &&val) { data_.push_back(std::move(val)); }
     void      push_back(const value_type &val) { data_.push_back(val); }
     void      emplace_back(key_type &&det, mapped_type &&val) { data_.emplace_back(std::move(det), std::move(val)); }
@@ -407,6 +411,15 @@ public:
     void append(C &sub_container)
     {
         data_.insert(data_.end(), sub_container.begin(), sub_container.end());
+        return;
+    }
+
+    template <typename C>
+    void append_move(C &sub_container)
+    {
+        data_.insert(data_.end(),
+                     std::make_move_iterator(sub_container.begin()),
+                     std::make_move_iterator(sub_container.end()));
         return;
     }
 

@@ -95,6 +95,11 @@ cdfci:
 	$(CC) $(CCFLAG) $(SOURCE_CDFCI) -o $(DIR_BIN)/$(TARGET_CDFCI) $(LFLAG)
 	$(CC) $(CCFLAG) $(OMP_FLAG) $(SOURCE_CDFCI) -o $(DIR_BIN)/$(TARGET_CDFCI_OMP) $(LFLAG)
 
+.PHONY: cdfci_omp
+cdfci_omp:
+	mkdir -p $(DIR_BIN)
+	$(CC) $(CCFLAG) $(OMP_FLAG) $(SOURCE_CDFCI) -o $(DIR_BIN)/$(TARGET_CDFCI_OMP) $(LFLAG)
+
 .PHONY: tools
 tools:
 	mkdir -p $(DIR_BIN)

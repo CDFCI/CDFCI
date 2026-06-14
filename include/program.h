@@ -45,13 +45,13 @@ public:
     using mapped_type = std::array<NumericalType, 2>;
     using equal_type  = DeterminantEqual<N>;
 #ifdef CDFCI_SOLVER_SERIAL
-    using hash_type      = DeterminantHash<N>;
-    using container_type = ContainerRobinhood<key_type, mapped_type, hash_type, equal_type>;
+    using hash_type             = DeterminantHash<N>;
+    using legacy_container_type = ContainerRobinhood<key_type, mapped_type, hash_type, equal_type>;
 #else
-    using hash_type      = DeterminantHashRobinhood<N>;
-    using container_type = ContainerCuckoo<key_type, mapped_type, hash_type, equal_type>;
+    using hash_type             = DeterminantHashRobinhood<N>;
+    using legacy_container_type = ContainerCuckoo<key_type, mapped_type, hash_type, equal_type>;
 #endif
-    using wf_type     = WaveFunction<container_type>;
+    using wf_type     = WaveFunction<legacy_container_type>;
     using solver_type = Solver<ham_type, wf_type>;
 
     Option opt;
@@ -71,7 +71,7 @@ public:
     {
         opt = option;
         ham_ptr = Hamiltonian<N>::init(opt["hamiltonian"]);
-        solver_ptr = Solver<ham_type, wf_type>::init(opt["solver"]);
+        init_solver();
     }
 
     CDFCIProgram(Option option, Fcidump &fci)
@@ -80,23 +80,38 @@ public:
 
         ham_ptr = std::make_unique<HamiltonianMolecule<N>>(fci);
 
-        solver_ptr = Solver<ham_type,wf_type>::init(opt["solver"]);
+        init_solver();
     }
 
     ~CDFCIProgram() {}
 
-    Result run()
+    void init_solver()
+    {
+        const std::string solver_kind = opt["solver"]["type"];
+        const auto &solver_opt = opt["solver"][solver_kind];
+        const auto backend = solver_opt.value("wavefunction_update_backend",
+                                              std::string("legacy_cuckoo"));
+        if (backend != "legacy_cuckoo")
+            throw std::invalid_argument(
+                "wavefunction_update_backend must be legacy_cuckoo.");
+        solver_ptr = Solver<ham_type, wf_type>::init(opt["solver"]);
+    }
+
+    template <typename WF>
+    Result run_backend(std::unique_ptr<Solver<ham_type, WF>> &solver,
+                       std::unique_ptr<RDM<WF>> &rdm,
+                       std::unique_ptr<Perturbation<ham_type, WF>> &ptb)
     {
         det_type::constuct_masks();
-        wf_type vec_xz;
+        WF vec_xz;
         time_block("Solver", [&]{
-            vec_xz = solver_ptr->solve(*ham_ptr);
+            vec_xz = solver->solve(*ham_ptr);
         });
 
         if (opt.contains("perturbation"))
         {
             time_block("Perturbation energy", [&]{
-                using wff_type = typename wf_type::wff_type;
+                using wff_type = typename WF::wff_type;
                 wff_type my_wff, sub_xz;
                 auto move_wff_functor = [&](const auto& val) {
                     my_wff.push_back(val.first, val.second);
@@ -107,22 +122,27 @@ public:
                                          opt["perturbation"].value("z_threshold", 0.0));
                 std::cout << "Number of determinants in perturbation wave function: "
                           << vec_xz.size_x() << " | " << vec_xz.size_z() << std::endl;
-                ptb_ptr = std::make_unique<Perturbation<ham_type,wf_type>>();
-                ptb_ptr->compute_perturbation_energy(vec_xz, *ham_ptr);
+                ptb = std::make_unique<Perturbation<ham_type,WF>>();
+                ptb->compute_perturbation_energy(vec_xz, *ham_ptr);
             });
         }
 
         if (opt.contains("rdm"))
         {
             time_block("RDM computation", [&]{
-                rdm_ptr = std::make_unique<RDM<wf_type>>(
+                rdm = std::make_unique<RDM<WF>>(
                     opt["rdm"], static_cast<int>(ham_ptr->norb / 2), ham_ptr->nelec);
-                rdm_ptr->computeRDM(vec_xz);
-                rdm_ptr->dumpFile();
+                rdm->computeRDM(vec_xz);
+                rdm->dumpFile();
             });
         }
 
-        return solver_ptr->get_result();
+        return solver->get_result();
+    }
+
+    Result run()
+    {
+        return run_backend(solver_ptr, rdm_ptr, ptb_ptr);
     }
 
     void print_header()
@@ -295,7 +315,10 @@ public:
             CDFCIProgram<N> cdfci(opt, fci);
             Result result = cdfci.run();
             energy = result.energy;
-            cdfci.rdm_ptr->output_rdm(zero_rdm, one_rdm, two_rdm);
+            if (cdfci.rdm_ptr)
+                cdfci.rdm_ptr->output_rdm(zero_rdm, one_rdm, two_rdm);
+            else
+                throw std::runtime_error("RDM output is unavailable after CDFCI run.");
 
             init_iter = 1;
         }
@@ -338,7 +361,10 @@ public:
                 return new_energy;
 
             energy = new_energy;
-            cdfci.rdm_ptr->output_rdm(zero_rdm, one_rdm, two_rdm);
+            if (cdfci.rdm_ptr)
+                cdfci.rdm_ptr->output_rdm(zero_rdm, one_rdm, two_rdm);
+            else
+                throw std::runtime_error("RDM output is unavailable after CDFCI run.");
         }
 
         return energy;
