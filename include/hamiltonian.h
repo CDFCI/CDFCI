@@ -20,6 +20,7 @@
 #include <algorithm>
 #include <memory>
 #include <cassert>
+#include <functional>
 
 #include "option.h"
 #include "fcidump.h"
@@ -32,6 +33,17 @@ public:
     using det_type   = Determinant<N>;
     using value_type = NumericalType;
     using Column     = std::vector<std::pair<Determinant<N>, NumericalType>>;
+    using ColumnVisitor = std::function<void(const det_type &, NumericalType)>;
+    struct ColumnSink
+    {
+        void *context = nullptr;
+        void (*visit)(void *, const det_type &, NumericalType) = nullptr;
+
+        void operator()(const det_type &det, NumericalType value) const
+        {
+            visit(context, det, value);
+        }
+    };
 
     Option opt = {
         {"type", ""}, // required, no default value
@@ -72,6 +84,42 @@ public:
     virtual Column        get_column_serial_part(Determinant<N> &det) const                                                                 = 0;
     virtual Column        get_column_parallel_part(Determinant<N> &det, int tid,
                                                    int nthreads) const                                                                      = 0;
+    virtual void          for_each_column_serial_part(Determinant<N> &det,
+                                                      const ColumnVisitor &visit) const
+    {
+        auto column = get_column_serial_part(det);
+        for (const auto &entry : column)
+            visit(entry.first, entry.second);
+    }
+
+    virtual void          for_each_column_parallel_part(Determinant<N> &det,
+                                                        int tid,
+                                                        int nthreads,
+                                                        const ColumnVisitor &visit) const
+    {
+        auto column = get_column_parallel_part(det, tid, nthreads);
+        for (const auto &entry : column)
+            visit(entry.first, entry.second);
+    }
+
+    virtual void          for_each_column_serial_part_fast(Determinant<N> &det,
+                                                           const ColumnSink &visit) const
+    {
+        auto column = get_column_serial_part(det);
+        for (const auto &entry : column)
+            visit(entry.first, entry.second);
+    }
+
+    virtual void          for_each_column_parallel_part_fast(Determinant<N> &det,
+                                                             int tid,
+                                                             int nthreads,
+                                                             const ColumnSink &visit) const
+    {
+        auto column = get_column_parallel_part(det, tid, nthreads);
+        for (const auto &entry : column)
+            visit(entry.first, entry.second);
+    }
+
     virtual NumericalType get_diagonal(Determinant<N> &det) const                                                                           = 0;
     virtual NumericalType get_entry(Determinant<N> &det1, Determinant<N> &det2) const                                                       = 0;
 
@@ -90,6 +138,8 @@ class HamiltonianMolecule : public Hamiltonian<N>
     using OrbitalList = std::vector<Orbital>;
     using typename Hamiltonian<N>::det_type;
     using typename Hamiltonian<N>::Column;
+    using typename Hamiltonian<N>::ColumnVisitor;
+    using typename Hamiltonian<N>::ColumnSink;
     using Hamiltonian<N>::norb;
     using Hamiltonian<N>::nelec;
     using Hamiltonian<N>::ms2;
@@ -581,10 +631,162 @@ public:
         return;
     }
 
+    template <typename Visit>
+    void visit_diagonal_impl(DeterminantDecoded<N> &det,
+                             const Visit &visit) const
+    {
+        visit(det, get_diagonal(det));
+    }
+
+    template <typename Visit>
+    void visit_single_excitation_impl(DeterminantDecoded<N> &det,
+                                      const Visit &visit) const
+    {
+        for (auto i : det.occupied_orbitals)
+        {
+            for (auto &entry_a : single_excitation[i])
+            {
+                auto a = entry_a.a;
+                if (!det.is_occupied(a))
+                {
+                    NumericalType value = entry_a.one_body_int;
+                    for (auto k : det.occupied_orbitals)
+                        value += entry_a.two_body_int[k];
+
+                    Determinant<N> new_det(det);
+                    new_det.clear_orbital(i);
+                    auto sign = new_det.parity(i, a);
+                    if (sign)
+                        value = -value;
+
+                    new_det.set_orbital(a);
+                    visit(new_det, value);
+                }
+            }
+        }
+    }
+
+    template <typename Visit>
+    void visit_double_excitation_impl(DeterminantDecoded<N> &det,
+                                      int idx_i,
+                                      int idx_j,
+                                      const Visit &visit) const
+    {
+        auto i = det.occupied_orbitals[idx_i];
+        auto j = det.occupied_orbitals[idx_j];
+        for (auto &entry : double_excitation[index(i, j)])
+        {
+            auto a = entry.first.first;
+            auto b = entry.first.second;
+            if (!det.is_occupied(a) & !det.is_occupied(b))
+            {
+                NumericalType  value = entry.second;
+                Determinant<N> new_det(det);
+                new_det.clear_orbital(i);
+                auto sign1 = new_det.parity(i, a);
+                new_det.set_orbital(a);
+                new_det.clear_orbital(j);
+                auto sign2 = new_det.parity(j, b);
+                new_det.set_orbital(b);
+                auto sign = sign1 ^ sign2;
+                if (sign)
+                    value = -value;
+
+                visit(new_det, value);
+            }
+        }
+    }
+
+    void visit_diagonal(DeterminantDecoded<N> &det,
+                        const ColumnVisitor &visit) const
+    {
+        visit_diagonal_impl(det, visit);
+    }
+
+    void visit_single_excitation(DeterminantDecoded<N> &det,
+                                 const ColumnVisitor &visit) const
+    {
+        visit_single_excitation_impl(det, visit);
+    }
+
+    void visit_double_excitation(DeterminantDecoded<N> &det,
+                                 int idx_i,
+                                 int idx_j,
+                                 const ColumnVisitor &visit) const
+    {
+        visit_double_excitation_impl(det, idx_i, idx_j, visit);
+    }
+
+    void for_each_column_serial_part(Determinant<N> &det,
+                                     const ColumnVisitor &visit) const override
+    {
+        DeterminantDecoded<N> det_decoded(det);
+        visit_diagonal(det_decoded, visit);
+        visit_single_excitation(det_decoded, visit);
+    }
+
+    void for_each_column_parallel_part(Determinant<N> &det,
+                                       int tid,
+                                       int nthreads,
+                                       const ColumnVisitor &visit) const override
+    {
+        DeterminantDecoded<N> det_decoded(det);
+
+        int n_excitations = nelec * (nelec - 1) / 2;
+        int idx_start = tid * n_excitations / nthreads;
+        int idx_end   = (tid + 1) * n_excitations / nthreads;
+
+        for (auto idx = idx_start; idx < idx_end; ++idx)
+        {
+            int idx_j = 0.5 + sqrt(0.25 + 2 * idx);
+            int idx_i = idx - (idx_j - 1) * idx_j / 2;
+            visit_double_excitation(det_decoded, idx_i, idx_j, visit);
+        }
+    }
+
+    void for_each_column_serial_part_fast(Determinant<N> &det,
+                                          const ColumnSink &visit) const override
+    {
+        DeterminantDecoded<N> det_decoded(det);
+        visit_diagonal_impl(det_decoded, visit);
+        visit_single_excitation_impl(det_decoded, visit);
+    }
+
+    void for_each_column_parallel_part_fast(Determinant<N> &det,
+                                            int tid,
+                                            int nthreads,
+                                            const ColumnSink &visit) const override
+    {
+        DeterminantDecoded<N> det_decoded(det);
+
+        int n_excitations = nelec * (nelec - 1) / 2;
+        int idx_start = tid * n_excitations / nthreads;
+        int idx_end   = (tid + 1) * n_excitations / nthreads;
+
+        for (auto idx = idx_start; idx < idx_end; ++idx)
+        {
+            int idx_j = 0.5 + sqrt(0.25 + 2 * idx);
+            int idx_i = idx - (idx_j - 1) * idx_j / 2;
+            visit_double_excitation_impl(det_decoded, idx_i, idx_j, visit);
+        }
+    }
+
     Column get_column(Determinant<N> &det) const
     {
         DeterminantDecoded<N> det_decoded(det);
         Column                result;
+        size_t reserve_size = 1;
+        for (auto i : det_decoded.occupied_orbitals)
+            reserve_size += single_excitation[i].size();
+        for (auto idx_i = 0; idx_i < det_decoded.occupied_orbitals.size(); ++idx_i)
+            for (auto idx_j = idx_i + 1;
+                 idx_j < det_decoded.occupied_orbitals.size(); ++idx_j)
+            {
+                auto i = det_decoded.occupied_orbitals[idx_i];
+                auto j = det_decoded.occupied_orbitals[idx_j];
+                reserve_size += double_excitation[index(i, j)].size();
+            }
+        result.reserve(reserve_size);
         get_diagonal(det_decoded, result);
         get_single_excitation(det_decoded, result);
         get_double_excitation(det_decoded, result);
@@ -662,6 +864,10 @@ public:
     {
         DeterminantDecoded<N> det_decoded(det);
         Column                result;
+        size_t reserve_size = 1;
+        for (auto i : det_decoded.occupied_orbitals)
+            reserve_size += single_excitation[i].size();
+        result.reserve(reserve_size);
         get_diagonal(det_decoded, result);
         get_single_excitation(det_decoded, result);
 
@@ -678,6 +884,17 @@ public:
         // 0 <= tid < nthreads
         int idx_start = tid * n_excitations / nthreads;
         int idx_end   = (tid + 1) * n_excitations / nthreads;
+
+        size_t reserve_size = 0;
+        for (auto idx = idx_start; idx < idx_end; ++idx)
+        {
+            int idx_j = 0.5 + sqrt(0.25 + 2 * idx);
+            int idx_i = idx - (idx_j - 1) * idx_j / 2;
+            auto i = det_decoded.occupied_orbitals[idx_i];
+            auto j = det_decoded.occupied_orbitals[idx_j];
+            reserve_size += double_excitation[index(i, j)].size();
+        }
+        result.reserve(reserve_size);
 
         for (auto idx = idx_start; idx < idx_end; ++idx)
         {
@@ -1060,6 +1277,8 @@ public:
     {
         DeterminantDecoded<N> det_decoded(det);
         Column                result;
+        result.reserve(1 + static_cast<size_t>(nelec * (nelec - 1) / 2) *
+                               static_cast<size_t>(std::max(1, norb / 2)));
         get_diagonal(det_decoded, result);
         // get_single_excitation(det, result);
         get_double_excitation(det_decoded, result);
@@ -1138,6 +1357,7 @@ public:
     {
         DeterminantDecoded<N> det_decoded(det);
         Column                result;
+        result.reserve(1);
         get_diagonal(det_decoded, result);
 
         return result;
@@ -1153,6 +1373,9 @@ public:
         // 0 <= tid < nthreads
         int idx_start = tid * n_excitations / nthreads;
         int idx_end   = (tid + 1) * n_excitations / nthreads;
+
+        result.reserve(static_cast<size_t>(std::max(0, idx_end - idx_start)) *
+                       static_cast<size_t>(std::max(1, norb / 2)));
 
         for (auto idx = idx_start; idx < idx_end; ++idx)
         {

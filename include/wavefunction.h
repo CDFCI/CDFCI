@@ -22,8 +22,15 @@
 #include "container.h"
 #include "determinant.h"
 #include "hamiltonian.h"
+#include <algorithm>
 #include <cmath>
+#include <limits>
+#include <memory>
+#include <stdexcept>
+#include <string>
 #include <type_traits>
+#include <utility>
+#include <vector>
 
 #define DEFINE_ACCESSORS(NAME, MEMBER)                                 \
     data_matrix_type get_##NAME##_double() const {                     \
@@ -56,7 +63,6 @@ public:
 
     using data_type = std::conditional_t<(NSTATES == 1), NumericalType, std::array<NumericalType, NSTATES>>;
     using data_matrix_type = std::conditional_t<(NSTATES == 1), NumericalType, std::array<NumericalType, NSTATES * NSTATES>>;
-    using quad_data_type = std::conditional_t<(NSTATES == 1), QUAD_PRECISION, std::array<QUAD_PRECISION, NSTATES>>;
     using quad_data_matrix_type = std::conditional_t<(NSTATES == 1), QUAD_PRECISION, std::array<QUAD_PRECISION, NSTATES * NSTATES>>;
 
     static constexpr int NSTATES_val = NSTATES; // number of states stored
@@ -285,11 +291,6 @@ public:
 
 protected:
     using Base::data_;
-    using Base::norm_square_;
-    using Base::dot_product_;
-    using Base::scale_factor_;
-    using Base::size_;
-    using Base::capacity_;
 
 public:
     WaveFunctionFragment(size_t capacity_ = 16)
@@ -306,8 +307,15 @@ public:
     void push_back(const key_type &det, const mapped_type &val) { data_.emplace_back(det, val); }
     void push_back(key_type &&det, mapped_type &&val) { data_.emplace_back(std::move(det), std::move(val)); }
 
+    void reserve(size_t n) { data_.reserve(n); }
+    value_type &operator[](size_t idx) { return data_[idx]; }
+    const value_type &operator[](size_t idx) const { return data_[idx]; }
+
     void append(WaveFunctionFragment<Container, NSTATES> &sub_xz)
     { data_.append(sub_xz); }
+
+    void append_move(WaveFunctionFragment<Container, NSTATES> &sub_xz)
+    { data_.append_move(sub_xz); }
 };
 
 template <typename Container, int NSTATES = 1>
@@ -327,8 +335,18 @@ public:
 
     using typename Base::data_type;
     using typename Base::data_matrix_type;
-    using typename Base::quad_data_type;
     using typename Base::quad_data_matrix_type;
+
+    struct LegacyVisitContext
+    {
+        WaveFunction *self = nullptr;
+        wff_type *sub_xz = nullptr;
+        data_matrix_type *delta_xz = nullptr;
+        data_type *new_z = nullptr;
+        data_type dx = {};
+        NumericalType z_threshold = 0.0;
+        NumericalType z_abs_threshold = 0.0;
+    };
 
 protected:
     /* Data */
@@ -337,7 +355,6 @@ protected:
     using Base::dot_product_;
     using Base::scale_factor_;
     using Base::size_;
-    using Base::capacity_;
 
     NumericalType max_load_factor_;
 
@@ -350,6 +367,11 @@ public:
 
     /* Destructor */
     virtual ~WaveFunction() {}
+
+    void clear() override
+    {
+        Base::clear();
+    }
 
     NumericalType max_load_factor() const { return max_load_factor_; }
 
@@ -402,6 +424,61 @@ public:
     // of *this need to be updated outside this function.
     //   Assume sub_xz is properly initialized.
     //   New z is inserted only if abs(z) > z_threshould.
+    data_type update_z_entry(const key_type &det,
+                             NumericalType h,
+                             data_type dx,
+                             wff_type &sub_xz,
+                             data_matrix_type &delta_xz,
+                             NumericalType z_threshold = 0.0,
+                             NumericalType z_abs_threshold = 0.0)
+    {
+        data_type dz = multiply(dx, h);
+
+        mapped_type vec_xz = {};
+
+        int new_element = 1;
+        auto update_functor = [dz, &vec_xz, &new_element](mapped_type &val) {
+            new_element = is_zero_on_second_half(val);
+            add_assign_second_half(val, dz); // z += dz
+            vec_xz = val;
+            return false;
+        };
+
+        bool touched = false;
+        const bool keep_z =
+            z_threshold <= 0.0
+                ? max_norm(dz) != 0.0
+                : exceeds_unscaled_threshold(dz, z_abs_threshold);
+
+        if (keep_z)
+        {
+            mapped_type val_new = {};
+            add_assign_second_half(val_new, dz);
+            vec_xz = val_new;
+            upsert(data_, det, update_functor, val_new);
+            sub_xz.update_size_z(new_element);
+            touched = true;
+        }
+        else
+        {
+            touched = update_fn(data_, det, update_functor);
+        }
+
+        if (!touched)
+            return data_type{};
+
+        if constexpr (NSTATES == 1) {
+            delta_xz += vec_xz[0] * dz;
+        } else {
+            for (size_t i = 0; i < NSTATES; i++)
+                for (size_t j = 0; j < NSTATES; j++)
+                    delta_xz[IDX(i, j)] += vec_xz[X(i)] * dz[j];
+        }
+
+        sub_xz.push_back(det, vec_xz);
+        return slice_first_half(vec_xz);
+    }
+
     template<typename C>
     data_type update_z(C &column, data_type dx,
                   wff_type &sub_xz,
@@ -409,6 +486,8 @@ public:
     {
         data_type new_z = {}; // Store the recalculated z_i.
         data_matrix_type delta_xz = {};
+        if (z_threshold <= 0.0)
+            sub_xz.reserve(column.size());
         NumericalType scale = this->get_scale();
         // Loop over the column
         for (auto &entry : column)
@@ -478,6 +557,84 @@ public:
                            wff_type &sub_xz,
                            NumericalType z_threshold = 0.0)
     {
+        update_coordinate_legacy(det_picked, h, sub_xz, z_threshold);
+    }
+
+    static void visit_legacy_column_entry(void *context,
+                                          const key_type &target,
+                                          NumericalType h_value)
+    {
+        auto &ctx = *static_cast<LegacyVisitContext *>(context);
+        auto x_current =
+            ctx.self->update_z_entry(target, h_value, ctx.dx, *ctx.sub_xz,
+                                     *ctx.delta_xz, ctx.z_threshold,
+                                     ctx.z_abs_threshold);
+        add_assign(*ctx.new_z, multiply(x_current, h_value));
+    }
+
+    template<typename H>
+    size_t estimate_legacy_sub_xz_reserve(const H &h,
+                                          int part_tid,
+                                          int inner_tasks) const
+    {
+        const size_t min_reserve = 16;
+        if (part_tid < 0)
+        {
+            auto virtual_orbitals = std::max(1, h.norb - h.nelec);
+            return std::max(min_reserve,
+                            static_cast<size_t>(1 + h.nelec * virtual_orbitals));
+        }
+
+        auto n_excitations = h.nelec * (h.nelec - 1) / 2;
+        auto idx_start = part_tid * n_excitations / inner_tasks;
+        auto idx_end = (part_tid + 1) * n_excitations / inner_tasks;
+        auto pair_count = std::max(0, idx_end - idx_start);
+        return std::max(min_reserve,
+                        static_cast<size_t>(pair_count) *
+                            static_cast<size_t>(std::max(1, h.norb / 2)));
+    }
+
+    template<typename H>
+    void visit_legacy_work_unit(H &h,
+                                key_type det,
+                                data_type dx,
+                                wff_type &sub_xz_local,
+                                data_type &new_z,
+                                NumericalType z_threshold,
+                                int part_tid,
+                                int inner_tasks)
+    {
+        data_matrix_type delta_xz = {};
+        sub_xz_local.reserve(
+            sub_xz_local.size() +
+            estimate_legacy_sub_xz_reserve(h, part_tid, inner_tasks));
+
+        LegacyVisitContext ctx;
+        ctx.self = this;
+        ctx.sub_xz = &sub_xz_local;
+        ctx.delta_xz = &delta_xz;
+        ctx.new_z = &new_z;
+        ctx.dx = dx;
+        ctx.z_threshold = z_threshold;
+        ctx.z_abs_threshold = unscaled_z_threshold(z_threshold);
+
+        typename H::ColumnSink sink{
+            &ctx, &WaveFunction<Container, NSTATES>::visit_legacy_column_entry};
+
+        if (part_tid < 0)
+            h.for_each_column_serial_part_fast(det, sink);
+        else
+            h.for_each_column_parallel_part_fast(det, part_tid, inner_tasks,
+                                                 sink);
+
+        sub_xz_local.update_xz(delta_xz);
+    }
+
+    template<typename H>
+    void update_coordinate_legacy(wff_type &det_picked, H &h,
+                                  wff_type &sub_xz,
+                                  NumericalType z_threshold = 0.0)
+    {
         // Initialize sub_xz
         sub_xz.clear();
 
@@ -493,8 +650,18 @@ public:
         // For (det, dx) in det_picked, update z[i] += h(i, det) * dx
         // and recalculate z
 #ifndef CDFCI_SOLVER_SERIAL
-        size_t p = omp_get_max_threads();
-        size_t inner_tasks = h.nelec / 2; // so that double excitation inner task has similar workload to single excitation task
+        const size_t max_threads =
+            static_cast<size_t>(std::max(1, omp_get_max_threads()));
+        const size_t active_coords = std::max<size_t>(1, det_picked.size());
+        const size_t max_inner_tasks =
+            std::max<size_t>(1, static_cast<size_t>(h.nelec / 2));
+        const size_t target_inner_tasks =
+            z_threshold > 0.0
+                ? max_inner_tasks
+                : std::max<size_t>(1, (max_threads + active_coords - 1) /
+                                          active_coords);
+        const size_t inner_tasks =
+            std::min(max_inner_tasks, target_inner_tasks);
 
         std::shared_ptr<H> h_shared(&h, [](H*) {
             // Empty destructor to prevent std::shared_ptr from calling delete
@@ -513,15 +680,38 @@ public:
 #ifndef CDFCI_SOLVER_SERIAL
             #pragma omp taskgroup
             {
-                generate_parallel_task(det, dx, h_shared, sub_xz, new_z, z_threshold);
+                if (z_threshold > 0.0)
+                    generate_column_parallel_task(det, dx, h_shared, sub_xz,
+                                                  new_z, z_threshold);
+                else
+                    generate_parallel_task(det, dx, h_shared, sub_xz, new_z,
+                                           z_threshold);
 
                 for (size_t tid = 0; tid < inner_tasks; ++tid)
-                    generate_parallel_task(det, dx, h_shared, sub_xz, new_z, z_threshold,
-                tid, inner_tasks);
+                {
+                    if (z_threshold > 0.0)
+                        generate_column_parallel_task(
+                            det, dx, h_shared, sub_xz, new_z, z_threshold,
+                            tid, inner_tasks);
+                    else
+                        generate_parallel_task(det, dx, h_shared, sub_xz,
+                                               new_z, z_threshold, tid,
+                                               inner_tasks);
+                }
             }
 #else
-            auto column = h.get_column(det);
-            new_z = update_z(column, dx, sub_xz, z_threshold);
+            if (z_threshold > 0.0)
+            {
+                auto column = h.get_column(det);
+                new_z = update_z(column, dx, sub_xz, z_threshold);
+            }
+            else
+            {
+                visit_legacy_work_unit(h, det, dx, sub_xz, new_z, z_threshold,
+                                       -1, 1);
+                visit_legacy_work_unit(h, det, dx, sub_xz, new_z, z_threshold,
+                                       0, 1);
+            }
 #endif
             assign_second_half(keyval.second, new_z);
         }
@@ -548,6 +738,38 @@ public:
     }
 
     template<typename H>
+    void generate_column_parallel_task(key_type &det, data_type dx,
+                                       std::shared_ptr<H> h_shared,
+                                       wff_type &sub_xz, data_type &new_z,
+                                       NumericalType z_threshold,
+                                       int tid = 0, int inner_tasks = 0)
+    {
+#ifndef CDFCI_SOLVER_SERIAL
+        #pragma omp task firstprivate(det, dx) shared(sub_xz, new_z)
+        {
+            typename H::Column column_parallel;
+            if (inner_tasks == 0)
+                column_parallel = h_shared->get_column_serial_part(det);
+            else
+                column_parallel =
+                    h_shared->get_column_parallel_part(det, tid, inner_tasks);
+
+            wff_type sub_xz_parallel;
+            data_type new_z_parallel =
+                update_z(column_parallel, dx, sub_xz_parallel, z_threshold);
+
+            #pragma omp critical
+            {
+                sub_xz.update_xz(sub_xz_parallel.get_xz());
+                sub_xz.update_size_z(sub_xz_parallel.size_z());
+                sub_xz.append(sub_xz_parallel);
+                add_assign(new_z, new_z_parallel);
+            }
+        }
+#endif
+    }
+
+    template<typename H>
     void generate_parallel_task(key_type &det, data_type dx,             // read-only, defined first-private
                                 std::shared_ptr<H> h_shared,                 // shared pointer
                                 wff_type &sub_xz, data_type &new_z,      // shared variable that is updated in critical area
@@ -557,15 +779,12 @@ public:
 #ifndef CDFCI_SOLVER_SERIAL
         #pragma omp task firstprivate(det, dx) shared(sub_xz, new_z)
         {
-            typename H::Column column_parallel;
-            if (inner_tasks == 0)
-                column_parallel = h_shared->get_column_serial_part(det);
-            else
-                column_parallel = h_shared->get_column_parallel_part(det, tid, inner_tasks);
-
             wff_type sub_xz_parallel;
-            data_type new_z_parallel;
-            new_z_parallel = update_z(column_parallel, dx, sub_xz_parallel, z_threshold);
+            data_type new_z_parallel = {};
+            visit_legacy_work_unit(*h_shared, det, dx, sub_xz_parallel,
+                                   new_z_parallel, z_threshold,
+                                   inner_tasks == 0 ? -1 : tid,
+                                   inner_tasks == 0 ? 1 : inner_tasks);
 
             // Reduce sub_xz_parallel to sub_xz
             #pragma omp critical
@@ -577,6 +796,38 @@ public:
             }
         }
 #endif
+    }
+
+    NumericalType unscaled_z_threshold(NumericalType z_threshold) const
+    {
+        if (z_threshold <= 0.0)
+            return 0.0;
+
+        auto scale_abs = fabs(this->get_scale());
+        if (scale_abs == static_cast<ScaleFactorType>(0.0))
+            return std::numeric_limits<NumericalType>::infinity();
+
+        return static_cast<NumericalType>(
+            static_cast<ScaleFactorType>(z_threshold) / scale_abs);
+    }
+
+    template<typename T>
+    bool exceeds_unscaled_threshold(const T &value,
+                                    NumericalType z_abs_threshold) const
+    {
+        return std::fabs(static_cast<NumericalType>(value)) >
+               z_abs_threshold;
+    }
+
+    template<typename T, size_t N>
+    bool exceeds_unscaled_threshold(const std::array<T, N> &value,
+                                    NumericalType z_abs_threshold) const
+    {
+        for (size_t i = 0; i < N; ++i)
+            if (std::fabs(static_cast<NumericalType>(value[i])) >
+                z_abs_threshold)
+                return true;
+        return false;
     }
 
     // Check overflow

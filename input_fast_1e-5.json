@@ -1,0 +1,26 @@
+{
+    "hamiltonian": {
+        "type": "molecule",
+        "molecule": {
+            "fcidump_path": "/home/zyzhang/sourcecode/CDFCI/data/n2_ccpvdz_psi4.FCIDUMP",
+            "verbose": 1
+        }
+    },
+    "solver": {
+        "type": "cdfci",
+        "cdfci": {
+            "verbose": 1,
+            "num_iterations": 100000,
+            "report_interval": 10000,
+            "num_coordinates": 8,
+            "coordinate_pick": "block_gcd_grad",
+            "coordinate_update": "eig",
+            "wavefunction_update_backend": "legacy_cuckoo",
+            "z_threshold": 1e-5,
+            "z_threshold_search": false
+        }
+    },
+    "max_memory": 25.0,
+    "max_load_factor": 0.79,
+    "verbose": 1
+}

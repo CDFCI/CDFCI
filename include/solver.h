@@ -183,6 +183,13 @@ public:
                                         std::to_string(max_load_factor) +
                                         ") should be between 0 and 1.");
         }
+        const auto backend = opt.value("wavefunction_update_backend",
+                                       std::string("legacy_cuckoo"));
+        if (backend != "legacy_cuckoo")
+        {
+            throw std::invalid_argument(
+                "solver.wavefunction_update_backend must be legacy_cuckoo.");
+        }
         // Warnings
         if (z_threshold_search)
         {
