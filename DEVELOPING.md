@@ -52,17 +52,16 @@ CDFCI/
 ### Build
 
 ```bash
-make clean && make -j
+cmake -S . -B build -DCMAKE_BUILD_TYPE=Release
+cmake --build build --parallel
 ```
 
 Optional targets:
 
-* `make check` — test gate alias
-* `make test` — run regression tests
-* `make install PREFIX=/path` — install binaries to `${PREFIX}/bin`
-* `make uninstall PREFIX=/path` — uninstall binaries
-* `make release-check` — clean build + tests + examples
-* `make format` — run clang-format
+* `ctest --test-dir build --output-on-failure` — run regression tests
+* `cmake --build build --target examples` — run all examples
+* `cmake --install build --prefix /path` — install binaries
+* `cmake -S . -B build -DCDFCI_BUILD_PYTHON=ON` — enable Python bindings
 
 ---
 
@@ -106,4 +105,3 @@ See [CONTRIBUTING.md](./CONTRIBUTING.md) for pull request workflow.
 ---
 
 For questions, contact [yingzhouli@fudan.edu.cn](mailto:yingzhouli@fudan.edu.cn) or [yuejiazhang21@m.fudan.edu.cn](yuejiazhang21@m.fudan.edu.cn).
-

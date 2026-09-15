@@ -74,7 +74,7 @@ void run_tools_symmetry_connection(Option &option)
     if (option["one_body_connection"])
     {
         std::ofstream f;
-        f.open(option["gml_one_body_connection_path"], std::ofstream::out);
+        f.open(option["gml_one_body_connection_path"].get<std::string>(), std::ofstream::out);
         connection_from_one_body_integral(fci,
                                           option["threshold"],
                                           option["symmetry_group_list"],
@@ -83,7 +83,7 @@ void run_tools_symmetry_connection(Option &option)
     if (option["two_body_connection"])
     {
         std::ofstream f;
-        f.open(option["gml_two_body_connection_path"], std::ofstream::out);
+        f.open(option["gml_two_body_connection_path"].get<std::string>(), std::ofstream::out);
         connection_from_two_body_integral(fci,
                                           option["threshold"],
                                           option["symmetry_group_list"],

@@ -19,7 +19,7 @@ This README focuses on a fast path to try the solvers and understand typical **i
 ## 2) Prerequisites
 
 * A Unix‑like environment (Linux, macOS, WSL).
-* Built CDFCI binaries available in `../bin/` from the `examples/` directory:
+* Built CDFCI binaries available in `../build/bin/` from the `examples/` directory:
 
   * `cdfci`, `cdfci_omp`, `xcdfci`, `optorbfci`, `cdfci_tools`
 * FCIDUMP data files
@@ -42,14 +42,14 @@ From `examples/`:
 This executes (in order):
 
 ```bash
-../bin/cdfci            demo_input_cdfci.json
-../bin/cdfci_omp        demo_input_cdfci.json
-../bin/cdfci            demo_input_mcdfci.json
-../bin/cdfci_omp        demo_input_mcdfci.json
-../bin/xcdfci           demo_input_xcdfci.json
-../bin/optorbfci        demo_input_optorbfci.json
-../bin/cdfci_tools      frozen_core.json
-../bin/cdfci_tools      symm_conn.json
+../build/bin/cdfci            demo_input_cdfci.json
+../build/bin/cdfci_omp        demo_input_cdfci.json
+../build/bin/cdfci            demo_input_mcdfci.json
+../build/bin/cdfci_omp        demo_input_mcdfci.json
+../build/bin/xcdfci           demo_input_xcdfci.json
+../build/bin/optorbfci        demo_input_optorbfci.json
+../build/bin/cdfci_tools      frozen_core.json
+../build/bin/cdfci_tools      symm_conn.json
 ```
 
 If everything works, you should see banners with version/build info, machine details, Hamiltonian info, parsed JSON, and then solver progress tables.
@@ -62,25 +62,25 @@ If everything works, you should see banners with version/build info, machine det
 
 ```bash
 # single-threaded CDFCI on H2O/STO-3G
-../bin/cdfci demo_input_cdfci.json
+../build/bin/cdfci demo_input_cdfci.json
 
 # OpenMP version of the same case
-OMP_NUM_THREADS=16 ../bin/cdfci_omp demo_input_cdfci.json
+OMP_NUM_THREADS=16 ../build/bin/cdfci_omp demo_input_cdfci.json
 
 # multi-coordinate (block) update
-../bin/cdfci demo_input_mcdfci.json
+../build/bin/cdfci demo_input_mcdfci.json
 
 # excited states (4 roots)
-../bin/xcdfci demo_input_xcdfci.json
+../build/bin/xcdfci demo_input_xcdfci.json
 
 # optimal-orbital workflow (OptOrbFCI + RDM)
-../bin/optorbfci demo_input_optorbfci.json
+../build/bin/optorbfci demo_input_optorbfci.json
 
 # tools: freeze first 2 orbitals
-../bin/cdfci_tools frozen_core.json
+../build/bin/cdfci_tools frozen_core.json
 
 # tools: symmetry/connection graphs
-../bin/cdfci_tools symm_conn.json
+../build/bin/cdfci_tools symm_conn.json
 ```
 
 ---
@@ -317,4 +317,3 @@ Each run prints several standard sections:
 * **Memory cap hit** → increase `max_memory` or increase `z_threshold`.
 * **Quad‑precision missing** → some platforms lack `__float128`; the code will fall back but results/timings can differ slightly.
 * **Graph files not created (tools)** → check write permissions to current dir; verify `*connection*_path` values.
-

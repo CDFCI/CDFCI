@@ -5,10 +5,13 @@ CDFCI uses a regression-style test gate driven by doctest and input sets in
 
 ## What gets executed
 
-* `make build_test` builds:
-  * `test/cdfci_test` (single-thread)
-  * `test/cdfci_test_omp` (OpenMP)
-* `make test` runs both executables.
+* `cmake --build build --target cdfci_test` builds the single-thread test.
+* When OpenMP is available, the default build also provides
+  `cdfci_test_omp`.
+* `ctest --test-dir build --output-on-failure` runs every case separately for
+  the serial executable and, when available, the OpenMP executable. For
+  example, `ctest --test-dir build -R cdfci.openmp.n2_ccpvdz_psi4` runs only
+  that OpenMP case.
 
 The main test entry is `test/test_system.cpp`, which loads each case from
 `regression_tests/<system>/input.json`, runs the solver, and compares the final

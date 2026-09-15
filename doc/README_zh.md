@@ -58,32 +58,34 @@ CDFCI 将全组态相互作用（FCI）本征值问题重写为一个大规模�
 ### 克隆并编译
 
 ```bash
-git clone --recursive https://github.com/CDFCI/CDFCI.git
+git clone https://github.com/CDFCI/CDFCI.git
 cd CDFCI
-make
+cmake -S . -B build -DCMAKE_BUILD_TYPE=Release
+cmake --build build --parallel
 ```
 
-将在 `bin` 目录下生成可执行文件：
+可执行文件将生成在 `build/bin` 目录下：
 
 * `cdfci`：单线程版本
 * `cdfci_omp`：启用 OpenMP 的版本
 * `xcdfci`：用于激发态
+* `xcdfci_omp`：启用 OpenMP 的激发态版本
 * `optorbfci`：用于轨道旋转与压缩
 * `cdfci_tools`：辅助工具
 
-或者，您也可以使用 `make cdfci`、`make optorbfci` 或 `make xcdfci` 生成指定程序。
+也可以用 `cmake --build build --target cdfci` 等命令只生成指定程序。
 
 发布相关常用目标：
 
-* `make check`：测试门禁（`make test` 的别名）
-* `make install PREFIX=/path`：安装程序到 `${PREFIX}/bin`（默认 `/usr/local/bin`）
-* `make uninstall PREFIX=/path`：卸载已安装程序
-* `make release-check`：执行 clean build + regression tests + examples 的发布前检查
+* `ctest --test-dir build --output-on-failure`：运行回归测试
+* `cmake --build build --target examples`：运行示例
+* `cmake --install build --prefix /path`：安装程序
 
 ### 编译要求
 
 * 支持 C++17 的编译器（GCC >= 9、Clang >= 10 或 ICC）
-* 依赖库：[Eigen3](https://eigen.tuxfamily.org)（通过递归克隆自动获取）
+* CMake 3.20 或更高版本
+* 依赖库：[Eigen3](https://eigen.tuxfamily.org)（系统未安装时由 CMake 自动下载）
 * 可选依赖：OpenMP
 
 ---
@@ -119,7 +121,7 @@ make
 快速运行：
 
 ```bash
-bin/cdfci examples/demo_input_cdfci.json
+build/bin/cdfci examples/demo_input_cdfci.json
 ```
 
 ---
@@ -127,7 +129,9 @@ bin/cdfci examples/demo_input_cdfci.json
 ## 🧪 测试
 
 ```bash
-make test
+cmake -S . -B build -DCMAKE_BUILD_TYPE=Release
+cmake --build build --parallel
+ctest --test-dir build --output-on-failure
 ```
 
 示例体系与期望能量见 `regression_tests`。
@@ -158,4 +162,3 @@ make test
 ## ⚖️ 开源协议
 
 本项目遵循 BSD 3-Clause License，详见根目录下的 [LICENSE](../LICENSE) 文件。
-

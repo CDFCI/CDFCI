@@ -12,9 +12,6 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-        with:
-          submodules: recursive
-          fetch-depth: 0
       - name: Install GCC 11
         run: |
           sudo apt update
@@ -23,15 +20,13 @@ jobs:
       - name: Build and Test
         run: |
           g++ --version
-          make examples
+          cmake -S . -B build -DCMAKE_BUILD_TYPE=Release -DBUILD_TESTING=OFF
+          cmake --build build --target examples --parallel 2
 
   regression-test:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-        with:
-          submodules: recursive
-          fetch-depth: 0
       - name: Install GCC 11
         run: |
           sudo apt update
@@ -40,16 +35,30 @@ jobs:
       - name: Build and Test
         run: |
           g++ --version
-          make test
+          cmake -S . -B build -DCMAKE_BUILD_TYPE=Release
+          cmake --build build --parallel 2
+          ctest --test-dir build --output-on-failure
+
+  macos-arm64-test:
+    runs-on: macos-15
+    steps:
+      - uses: actions/checkout@v4
+      - name: Verify ARM64 runner
+        run: test "$(uname -m)" = "arm64"
+      - name: Install OpenMP runtime
+        run: brew install libomp
+      - name: Build and Test with Apple Clang
+        run: |
+          clang++ --version
+          cmake -S . -B build -DCMAKE_BUILD_TYPE=Release -DOpenMP_ROOT="$(brew --prefix libomp)"
+          cmake --build build --parallel 2
+          ctest --test-dir build --output-on-failure
 
   release-artifacts:
     if: startsWith(github.ref, 'refs/tags/v')
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-        with:
-          submodules: recursive
-          fetch-depth: 0
       - name: Install GCC 11
         run: |
           sudo apt update
@@ -58,11 +67,11 @@ jobs:
       - name: Build release binaries
         run: |
           g++ --version
-          make all
+          cmake -S . -B build -DCMAKE_BUILD_TYPE=Release -DBUILD_TESTING=OFF
+          cmake --build build --parallel 2
+          cmake --install build --prefix release
       - name: Package release artifacts
         run: |
-          mkdir -p release
-          cp -r bin release/bin
           cp README.md CHANGELOG.md LICENSE release/
           tar -czf cdfci-${GITHUB_REF_NAME}-linux-x64.tar.gz -C release .
       - name: Upload artifact

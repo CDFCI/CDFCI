@@ -119,7 +119,7 @@ public:
     {
         num_iter                   = opt["num_iterations"];
         report_interval            = opt["report_interval"];
-        ref_det_occ                = opt.at("ref_det_occ").get<std::vector<int>>();
+        ref_det_occ                = opt.at("ref_det_occ").template get<std::vector<int>>();
         coord_pick_str             = opt["coordinate_pick"];
         coord_update_str           = opt["coordinate_update"];
         num_coordinates            = opt["num_coordinates"];
@@ -392,7 +392,11 @@ public:
                           << " and restart." << std::endl;
 
                 if (opt["load_configuration"]) {
-                    vec_xz.load_wavefunction(opt["load_configuration_location"]);
+                    const int load_status =
+                        vec_xz.load_wavefunction(opt["load_configuration_location"]);
+                    if (load_status != 0) {
+                        return load_status;
+                    }
                 } else
                     vec_xz.clear();
             }
@@ -404,19 +408,19 @@ public:
         return 0;
     }
 
-    int solve(H &h, W &vec_xz)
+    int solve(H &h, W &vec_xz, int num_states = 1)
     {
         auto coord_pick   = CoordinatePick<W>::init(coord_pick_str);
         auto coord_update = CoordinateUpdate<H, W>::init(coord_update_str);
-        return solve(h, *coord_pick, *coord_update, vec_xz);
-    }
 
-    W solve(H &h, int num_states = 1)
-    {
-        auto vec_xz = W(max_wavefunction_size, max_load_factor);
+        vec_xz.reserve_capacity(max_wavefunction_size, max_load_factor);
         vec_xz.num_states = num_states;
         if (opt["load_configuration"]) {
-            vec_xz.load_wavefunction(opt["load_configuration_location"]);
+            const int load_status =
+                vec_xz.load_wavefunction(opt["load_configuration_location"]);
+            if (load_status != 0) {
+                return load_status;
+            }
             if (opt["recalculate_z_on_load"]) {
                 wff_type my_wff, sub_xz;
                 auto move_wff_functor = [&](const auto& val) {
@@ -433,11 +437,17 @@ public:
 
             }
         }
-        solve(h, vec_xz);
+        int result = solve(h, *coord_pick, *coord_update, vec_xz);
         if (opt["save_configuration"]) {
             vec_xz.dump_wavefunction(opt["save_configuration_location"]);
         }
-        return vec_xz;
+        return result;
+    }
+
+    int solve(H &h, int num_states = 1)
+    {
+        W vec_xz;
+        return solve(h, vec_xz, num_states);
     }
 };
 

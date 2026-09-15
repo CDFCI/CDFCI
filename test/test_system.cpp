@@ -35,44 +35,20 @@ bool test_system(std::string sys_name, std::string path)
     return passed;
 }
 
-TEST_CASE("Test example systems")
-{
-    const std::string test_path = "../regression_tests";
+#define CDFCI_REGRESSION_TEST(name, system)                \
+    TEST_CASE(name)                                        \
+    {                                                      \
+        CHECK(test_system(system, "../regression_tests")); \
+    }
 
-    SUBCASE("c2_ccpvdz_psi4")
-    {
-        CHECK(test_system("c2/ccpvdz_psi4", test_path));
-    }
-    SUBCASE("cr2_ahlrichs_psi4")
-    {
-        CHECK(test_system("cr2/ahlrichs_psi4", test_path));
-    }
-    SUBCASE("h2o_ccpvdz_psi4")
-    {
-        CHECK(test_system("h2o/ccpvdz_psi4", test_path));
-    }
-    SUBCASE("h2o_ccpvdz_pyscf")
-    {
-        CHECK(test_system("h2o/ccpvdz_pyscf", test_path));
-    }
-    SUBCASE("h2o_sto3g_psi4")
-    {
-        CHECK(test_system("h2o/sto3g_psi4", test_path));
-    }
-    SUBCASE("hubbard")
-    {
-        CHECK(test_system("hubbard", test_path));
-    }
-    SUBCASE("n2_ccpvdz_psi4")
-    {
-        CHECK(test_system("n2/ccpvdz_psi4", test_path));
-    }
-    SUBCASE("n2_ccpvdz_psi4_eps1e-2")
-    {
-        CHECK(test_system("n2/ccpvdz_psi4_eps1e-2", test_path));
-    }
-    SUBCASE("n2_ccpvdz_psi4_triplet")
-    {
-        CHECK(test_system("n2/ccpvdz_psi4_triplet", test_path));
-    }
-}
+CDFCI_REGRESSION_TEST("c2_ccpvdz_psi4", "c2/ccpvdz_psi4")
+CDFCI_REGRESSION_TEST("cr2_ahlrichs_psi4", "cr2/ahlrichs_psi4")
+CDFCI_REGRESSION_TEST("h2o_ccpvdz_psi4", "h2o/ccpvdz_psi4")
+CDFCI_REGRESSION_TEST("h2o_ccpvdz_pyscf", "h2o/ccpvdz_pyscf")
+CDFCI_REGRESSION_TEST("h2o_sto3g_psi4", "h2o/sto3g_psi4")
+CDFCI_REGRESSION_TEST("hubbard", "hubbard")
+CDFCI_REGRESSION_TEST("n2_ccpvdz_psi4", "n2/ccpvdz_psi4")
+CDFCI_REGRESSION_TEST("n2_ccpvdz_psi4_eps1e-2", "n2/ccpvdz_psi4_eps1e-2")
+CDFCI_REGRESSION_TEST("n2_ccpvdz_psi4_triplet", "n2/ccpvdz_psi4_triplet")
+
+#undef CDFCI_REGRESSION_TEST

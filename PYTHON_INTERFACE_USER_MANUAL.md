@@ -11,6 +11,7 @@ This manual describes how to build and use the Python interface for CDFCI, inclu
 
 - Linux/macOS with a C++17 compiler
 - Python 3.8+
+- Python development headers (`python3-dev` on Debian/Ubuntu)
 - `numpy`
 - Optional for integration: `pyscf`
 
@@ -28,23 +29,25 @@ pip install numpy pyscf
 From repository root:
 
 ```bash
-make python-module
+cmake -S . -B build -DCMAKE_BUILD_TYPE=Release -DCDFCI_BUILD_PYTHON=ON
+cmake --build build --target cdfci_python --parallel
 ```
 
-This builds the extension module under `python/_cdfci<ext-suffix>`.
+This builds the extension module under `build/python/_cdfci<ext-suffix>`.
 
 ## 3. Import Setup
 
 When running scripts from repository root, use:
 
 ```bash
-PYTHONPATH=python python your_script.py
+PYTHONPATH=build/python:python python your_script.py
 ```
 
 Or inside Python:
 
 ```python
 import sys
+sys.path.insert(0, "build/python")
 sys.path.insert(0, "python")
 import cdfci
 ```
@@ -300,8 +303,8 @@ For complete option details, see:
 
 ### ImportError: No module named `_cdfci`
 
-- Rebuild extension: `make python-module`
-- Ensure `PYTHONPATH=python` is set when running scripts.
+- Rebuild the extension: `cmake --build build --target cdfci_python --parallel`
+- Ensure `PYTHONPATH=build/python:python` is set when running scripts.
 
 ### ImportError: PySCF is required ...
 

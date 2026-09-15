@@ -147,7 +147,7 @@ public:
 
     void get_bytes_per_entry()
     {
-        bytes_per_entry = bytes_per_size_t * size_t_per_det + bytes_per_value;
+        bytes_per_entry = bytes_per_size_t * size_t_per_det + bytes_per_value * (opt["solver"]["type"] == "xcdfci" ? static_cast<int>(opt["num_states"]) : 1);;
     }
 
     void get_max_wavefunction_size()

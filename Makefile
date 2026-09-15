@@ -6,23 +6,29 @@ CC = g++
 CCFLAG = -O3 -std=c++17
 # compiler debug flag
 DBGFLAG = -g
-# compiler AVX flag
-AVX_FLAG = -mavx
-ifeq (ic, $(findstring ic, $(CC)))
-        AVX_FLAG = -xAVX
-endif
-CCFLAG += $(AVX_FLAG)
+# Optional target-specific optimization flags, for example ARCH_FLAGS=-mavx.
+# No x86 instruction set is enabled by default so ARM builds remain portable.
+ARCH_FLAGS ?=
+CCFLAG += $(ARCH_FLAGS)
 
 # include path for header files
-IFLAG = -I./src -I./include
+IFLAG = -I./src -I./include -I./src/lib/eigen -I./src/lib/pybind11/include
 CCFLAG += $(IFLAG)
 
 # compiler OpenMP flag
 OMP_FLAG = -fopenmp
-# Mac OS X uses -openmp
+OMP_LFLAG =
+# Apple Clang needs the separately installed libomp runtime.
 ifneq ($(OS), Windows_NT)
 ifeq ($(shell uname -s), Darwin)
-        OMP_FLAG = -openmp
+        LIBOMP_PREFIX ?= $(shell brew --prefix libomp 2>/dev/null)
+ifneq ($(LIBOMP_PREFIX),)
+        OMP_FLAG = -Xpreprocessor -fopenmp -I$(LIBOMP_PREFIX)/include
+        OMP_LFLAG = -L$(LIBOMP_PREFIX)/lib -Wl,-rpath,$(LIBOMP_PREFIX)/lib -lomp
+else
+        OMP_FLAG = -Xpreprocessor -fopenmp
+        OMP_LFLAG = -lomp
+endif
 endif
 endif
 # Intel compiler uses -qopenmp
@@ -30,9 +36,10 @@ ifeq (ic, $(findstring ic, $(CC)))
         OMP_FLAG = -qopenmp
 endif
 
-# linker flag, clang does not support -lquadmath
-ifeq (g++, $(findstring g++, $(CC)))
-	LFLAG = -lquadmath
+# Ask config.h whether this compiler actually selected __float128/quadmath.
+CDFCI_USE_FLOAT128 := $(shell $(CC) $(IFLAG) -dM -E -x c++ include/config.h 2>/dev/null | grep -q '^\#define CDFCI_USE_FLOAT128' && echo 1)
+ifeq ($(CDFCI_USE_FLOAT128),1)
+	LFLAG += -lquadmath
 endif
 
 # disable some warnings
@@ -93,7 +100,7 @@ default: all
 cdfci:
 	mkdir -p $(DIR_BIN)
 	$(CC) $(CCFLAG) $(SOURCE_CDFCI) -o $(DIR_BIN)/$(TARGET_CDFCI) $(LFLAG)
-	$(CC) $(CCFLAG) $(OMP_FLAG) $(SOURCE_CDFCI) -o $(DIR_BIN)/$(TARGET_CDFCI_OMP) $(LFLAG)
+	$(CC) $(CCFLAG) $(OMP_FLAG) $(SOURCE_CDFCI) -o $(DIR_BIN)/$(TARGET_CDFCI_OMP) $(LFLAG) $(OMP_LFLAG)
 
 .PHONY: tools
 tools:
@@ -110,7 +117,7 @@ optorbfci:
 xcdfci:
 	mkdir -p $(DIR_BIN)
 	$(CC) $(CCFLAG) $(SOURCE_XCDFCI) -o $(DIR_BIN)/$(TARGET_XCDFCI) $(LFLAG)
-	$(CC) $(CCFLAG) $(OMP_FLAG) $(SOURCE_XCDFCI) -o $(DIR_BIN)/$(TARGET_XCDFCI_OMP) $(LFLAG)
+	$(CC) $(CCFLAG) $(OMP_FLAG) $(SOURCE_XCDFCI) -o $(DIR_BIN)/$(TARGET_XCDFCI_OMP) $(LFLAG) $(OMP_LFLAG)
 
 .PHONY: all
 all: cdfci tools xcdfci optorbfci
@@ -119,7 +126,7 @@ all: cdfci tools xcdfci optorbfci
 check: test
 
 $(PYMOD_OUT): $(PYMOD_SRC)
-	$(CC) $(CCFLAG) -shared -fPIC $(OMP_FLAG) $(PY_INC) $(PYMOD_SRC) -o $@ $(PY_LDFLAGS) $(LFLAG)
+	$(CC) $(CCFLAG) -shared -fPIC $(OMP_FLAG) $(PY_INC) $(PYMOD_SRC) -o $@ $(PY_LDFLAGS) $(LFLAG) $(OMP_LFLAG)
 
 python-module: $(PYMOD_OUT)
 
@@ -135,18 +142,17 @@ debug:
 .PHONY: build_test
 build_test:
 	$(CC_TEST) $(CCFLAG) $(DIR_TEST)/$(SOURCE_TEST) -o $(DIR_TEST)/$(TARGET_TEST) $(LFLAG)
-	$(CC_TEST) $(CCFLAG) $(OMP_TEST_FLAG) $(DIR_TEST)/$(SOURCE_TEST) -o $(DIR_TEST)/$(TARGET_OMP_TEST) $(LFLAG)
+	$(CC_TEST) $(CCFLAG) $(OMP_TEST_FLAG) $(DIR_TEST)/$(SOURCE_TEST) -o $(DIR_TEST)/$(TARGET_OMP_TEST) $(LFLAG) $(OMP_LFLAG)
 
 .PHONY: test
 test: build_test
 	@echo "Running regression tests..."
 	cd $(DIR_TEST) && ./$(TARGET_TEST) -D
 ifeq ($(OS), Windows_NT)
-	set OMP_NUM_THREADS=2
+	cd $(DIR_TEST) && set OMP_NUM_THREADS=2 && ./$(TARGET_OMP_TEST) -D
 else
-	export OMP_NUM_THREADS=2
+	cd $(DIR_TEST) && OMP_NUM_THREADS=2 ./$(TARGET_OMP_TEST) -D
 endif
-	cd $(DIR_TEST) && ./$(TARGET_OMP_TEST) -D
 
 .PHONY: install
 install: all

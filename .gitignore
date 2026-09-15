@@ -1,4 +1,5 @@
 .vscode/*
+build/
 bin/*
 debug/*
 test/cdfci_test

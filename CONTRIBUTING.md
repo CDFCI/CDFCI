@@ -61,6 +61,6 @@ clang-format -i src/**/*.h src/**/*.cpp
 ## 📞 Communication
 
 * For major contributions, open an Issue first or email [Prof. Yingzhou Li](mailto:yingzhouli@fudan.edu.cn).
-* For general bug reports or feature suggestions, please use [GitHub Issues](https://github.com/CDFCI/CDFCI-private/issues).
+* For general bug reports or feature suggestions, please use [GitHub Issues](https://github.com/CDFCI/CDFCI/issues).
 
 We appreciate your time and effort to help improve CDFCI!

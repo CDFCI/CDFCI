@@ -288,7 +288,7 @@ public:
     }
 
     int load_from_file(std::ifstream& file) {
-        // 1) read count
+        // 1) Read count
         uint64_t n = 0;
         file.read(reinterpret_cast<char*>(&n), sizeof(n));
         if (!file) {
@@ -297,10 +297,11 @@ public:
         }
         std::cout << "Loading " << n << " elements into the hash map.\n";
 
-        // 2) read into a temporary map for strong exception safety
-        hash_map tmp;
-        // Reserve to avoid rehash while loading
-        tmp.reserve(static_cast<size_type>(n));
+        // 2) Reserve to avoid rehash while loading
+        data_.clear();
+        if (data_.capacity() < n) {
+            data_.reserve(static_cast<size_type>(n));
+        }
 
         for (uint64_t i = 0; i < n; ++i) {
             key_type    k{};
@@ -317,7 +318,7 @@ public:
             }
             // Insert into temporary map
             // use upsert: if key exists, overwrite with new value
-            tmp.upsert(std::move(k),
+            data_.upsert(std::move(k),
                     [&](mapped_type& existing) { existing = v; },
                     std::move(v));
         }
@@ -327,7 +328,6 @@ public:
             return -5;
         }
 
-        data_ = std::move(tmp);
         return 0;
     }
 

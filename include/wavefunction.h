@@ -100,6 +100,13 @@ public:
         size_ = {};
     }
 
+    void reserve_capacity(size_t capacity = 16)
+    {
+        //TODO: return a flag indicating whether reserve is successful.
+        data_.reserve(capacity);
+        capacity_ = capacity;
+    }
+
     /* Iterators */
     // WARNING:
     //   Iterator may be invalidated by other threads if
@@ -352,6 +359,13 @@ public:
     virtual ~WaveFunction() {}
 
     NumericalType max_load_factor() const { return max_load_factor_; }
+
+    void reserve_capacity(size_t capacity = 16, NumericalType max_load_factor = 0.79)
+    {
+        data_.reserve(capacity);
+        capacity_ = capacity;
+        max_load_factor_ = max_load_factor;
+    }
 
     /* Update x or z */
     void update_x(key_type &det, data_type dx)
@@ -636,7 +650,10 @@ public:
             return -1;
         }
         try {
-            data_.load_from_file(file);
+            const int status = data_.load_from_file(file);
+            if (status != 0) {
+                return status;
+            }
         } catch (const std::exception& e) {
             std::cerr << "Exception: " << e.what() << std::endl;
             return -1; // Return error code for exception

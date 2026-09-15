@@ -18,6 +18,8 @@
 #define CDFCI_CONFIG_H
 
 #include <chrono>
+#include <climits>
+#include <cstdint>
 #include <functional>
 #include <iomanip>
 #include <iostream>
@@ -32,20 +34,26 @@
 /* version */
 #define CDFCI_VERSION_MAJOR 1 // for incompatible API changes
 #define CDFCI_VERSION_MINOR 0 // for adding functionality in a backwards-compatible manner
-#define CDFCI_VERSION_PATCH 0 // for backwards-compatible bug fixes
+#define CDFCI_VERSION_PATCH 2 // for backwards-compatible bug fixes
 
 /* macros */
 
-// Count Trailing Zero
-// GCC builtin function
-#ifdef __x86_64__
+// Select GCC/Clang bit builtins by the width of size_t, which is the
+// determinant storage type. Architecture macros do not reliably imply it.
+#if SIZE_MAX == UINT_MAX
+#define CTZ __builtin_ctz
+#define PARITY __builtin_parity
+#define POPCOUNT __builtin_popcount
+#elif SIZE_MAX == ULONG_MAX
+#define CTZ __builtin_ctzl
+#define PARITY __builtin_parityl
+#define POPCOUNT __builtin_popcountl
+#elif SIZE_MAX == ULLONG_MAX
 #define CTZ __builtin_ctzll
 #define PARITY __builtin_parityll
 #define POPCOUNT __builtin_popcountll
 #else
-#define CTZ __builtin_ctz
-#define PARITY __builtin_parity
-#define POPCOUNT __builtin_popcount
+#error "CDFCI does not support this size_t width"
 #endif
 
 // OpenMP
@@ -76,12 +84,15 @@ private:
     std::unordered_map<std::string, double> times;
 };
 
-// float128 support
-// temporary solution for clang: use long double instead
-#if defined(__clang__)
-#define CDFCI_USE_LONG_DOUBLE
-#define QUAD_PRECISION long double
-#else
+// Use __float128 only when both the type and libquadmath header are available.
+// Apple Clang and other compilers without that combination use long double.
+#if defined(__has_include)
+#if !defined(__clang__) && defined(__SIZEOF_FLOAT128__) && __has_include(<quadmath.h>)
+#define CDFCI_USE_FLOAT128
+#endif
+#endif
+
+#ifdef CDFCI_USE_FLOAT128
 #define QUAD_PRECISION __float128
 #include <quadmath.h>
 
@@ -90,6 +101,9 @@ inline QUAD_PRECISION sqrt(QUAD_PRECISION x) { return sqrtq(x); }
 inline QUAD_PRECISION cbrt(QUAD_PRECISION x) { return cbrtq(x); }
 inline QUAD_PRECISION cos(QUAD_PRECISION x) { return cosq(x); }
 inline QUAD_PRECISION atan2(QUAD_PRECISION y, QUAD_PRECISION x) { return atan2q(y, x); }
+#else
+#define CDFCI_USE_LONG_DOUBLE
+#define QUAD_PRECISION long double
 #endif
 
 
@@ -100,8 +114,8 @@ using NumericalType   = double;
 using ScaleFactorType = QUAD_PRECISION;
 
 /* Eigen Type Aliases */
-#include "lib/eigen/Eigen/Dense"
-#include "lib/eigen/unsupported/Eigen/CXX11/Tensor"
+#include <Eigen/Dense>
+#include <unsupported/Eigen/CXX11/Tensor>
 
 using Matrix  = Eigen::Matrix<NumericalType, Eigen::Dynamic, Eigen::Dynamic>;
 using Tensor4 = Eigen::Tensor<NumericalType, 4>;

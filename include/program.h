@@ -90,7 +90,11 @@ public:
         det_type::constuct_masks();
         wf_type vec_xz;
         time_block("Solver", [&]{
-            vec_xz = solver_ptr->solve(*ham_ptr);
+            const int solve_status = solver_ptr->solve(*ham_ptr, vec_xz);
+            if (solve_status != 0) {
+                throw std::runtime_error("Solver failed with status " +
+                                         std::to_string(solve_status));
+            }
         });
 
         if (opt.contains("perturbation"))
@@ -170,7 +174,12 @@ public:
     Result run()
     {
         det_type::constuct_masks();
-        solver_ptr->solve(*ham_ptr, opt["solver"]["num_states"]);
+        const int solve_status =
+            solver_ptr->solve(*ham_ptr, opt["solver"]["num_states"]);
+        if (solve_status != 0) {
+            throw std::runtime_error("Solver failed with status " +
+                                     std::to_string(solve_status));
+        }
         return solver_ptr->get_result();
     }
 

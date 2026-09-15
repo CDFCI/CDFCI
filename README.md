@@ -58,32 +58,39 @@ For Python workflows and advanced scripting usage, see the [Python Interface Use
 ### Clone and Build
 
 ```bash
-git clone --recursive https://github.com/CDFCI/CDFCI.git
+git clone https://github.com/CDFCI/CDFCI.git
 cd CDFCI
-make
+cmake -S . -B build -DCMAKE_BUILD_TYPE=Release
+cmake --build build --parallel
 ```
 
-The following executables will be generated in the `bin` directory:
+Eigen is discovered on the system or fetched automatically during configure.
+The following executables will be generated in `build/bin`:
 
 * `cdfci`: single-threaded version
 * `cdfci_omp`: OpenMP-enabled version
 * `xcdfci`: for excited states
+* `xcdfci_omp`: OpenMP-enabled excited-state version
 * `optorbfci`: for orbital rotation and compression
 * `cdfci_tools`: auxiliary utilities
 
-Alternatively, you may use `make cdfci `, `make optorbfci` or  `make xcdfci` to generate specific executable.
+You can build a specific executable with, for example,
+`cmake --build build --target cdfci`. The main configuration options are:
 
-Useful release-related targets:
+* `CDFCI_ENABLE_OPENMP=ON|OFF`: build OpenMP variants when available (default `ON`)
+* `CDFCI_BUILD_PYTHON=ON|OFF`: build the `_cdfci` Python extension (default `OFF`)
+* `BUILD_TESTING=ON|OFF`: build regression-test executables (default `ON`)
+* `CDFCI_ARCH_FLAGS="..."`: add optional architecture-specific compiler flags
 
-* `make check`: run test gate (`make test` alias)
-* `make install PREFIX=/path`: install binaries to `${PREFIX}/bin` (default `/usr/local/bin`)
-* `make uninstall PREFIX=/path`: remove installed binaries
-* `make release-check`: run clean build + regression tests + examples
+Install with `cmake --install build --prefix /path/to/prefix`. The legacy
+Makefile remains available for existing workflows, but CMake is the supported
+and CI-tested build path.
 
 ### Requirements
 
 * C++17 compiler (GCC ≥ 9, Clang ≥ 10, or ICC)
-* [Eigen3](https://eigen.tuxfamily.org) (will be clone recursively)
+* CMake 3.20 or newer
+* [Eigen3](https://eigen.tuxfamily.org) (fetched automatically if unavailable)
 * OpenMP (optional)
 ---
 
@@ -117,7 +124,7 @@ More examples, including [a full documentation for input and output](./examples/
 
 Quickstart:
 ```bash
-cd examples && ../bin/cdfci demo_input_cdfci.json
+cd examples && ../build/bin/cdfci demo_input_cdfci.json
 ```
 
 ---
@@ -127,7 +134,9 @@ cd examples && ../bin/cdfci demo_input_cdfci.json
 To compile and run regression tests:
 
 ```bash
-make test
+cmake -S . -B build -DCMAKE_BUILD_TYPE=Release
+cmake --build build --parallel
+ctest --test-dir build --output-on-failure
 ```
 
 Example systems and expected energies are provided in `regression_tests`.
