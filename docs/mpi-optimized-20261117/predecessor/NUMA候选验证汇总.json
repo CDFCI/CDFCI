@@ -1,0 +1,3055 @@
+{
+  "schema": 1,
+  "conditions": {
+    "system": "N2/cc-pVDZ",
+    "iterations": 2000,
+    "report_interval": 100,
+    "nodes": 1,
+    "ranks": 2,
+    "threads_per_rank": 2,
+    "coordinates": 16,
+    "z_threshold": 5e-7,
+    "hash_updates": "buffered",
+    "requested_slurm_memory_gib": 16,
+    "capacity_gib_per_rank": 2,
+    "checkpoint": false
+  },
+  "validation": {
+    "numerical_snapshots_checked": 240,
+    "finals_checked": 12,
+    "exact_json_numerical_match": true,
+    "per_rank_snapshot_counters_match": true,
+    "reference_reports": [
+      {
+        "iteration": 100,
+        "energy": -109.24528920973772,
+        "dx": 0.07636462782585403,
+        "x": 1581,
+        "z": 2499036,
+        "k": 58036
+      },
+      {
+        "iteration": 200,
+        "energy": -109.25744177123289,
+        "dx": 0.04334490394498829,
+        "x": 3146,
+        "z": 4302123,
+        "k": 57673
+      },
+      {
+        "iteration": 300,
+        "energy": -109.26201908410657,
+        "dx": 0.030435983386641042,
+        "x": 4722,
+        "z": 6502047,
+        "k": 57222
+      },
+      {
+        "iteration": 400,
+        "energy": -109.26454736425994,
+        "dx": 0.022188194541659635,
+        "x": 6272,
+        "z": 8554988,
+        "k": 58298
+      },
+      {
+        "iteration": 500,
+        "energy": -109.26631328896588,
+        "dx": 0.01541101530929143,
+        "x": 7839,
+        "z": 10701926,
+        "k": 57598
+      },
+      {
+        "iteration": 600,
+        "energy": -109.26757728123795,
+        "dx": 0.013390685231987533,
+        "x": 9363,
+        "z": 12789206,
+        "k": 57663
+      },
+      {
+        "iteration": 700,
+        "energy": -109.26857177741174,
+        "dx": 0.013888808971406413,
+        "x": 10910,
+        "z": 14821581,
+        "k": 58080
+      },
+      {
+        "iteration": 800,
+        "energy": -109.26936063189682,
+        "dx": 0.012485550651423703,
+        "x": 12475,
+        "z": 16819494,
+        "k": 58366
+      },
+      {
+        "iteration": 900,
+        "energy": -109.2700381884542,
+        "dx": 0.011362204918891509,
+        "x": 14018,
+        "z": 18721225,
+        "k": 58156
+      },
+      {
+        "iteration": 1000,
+        "energy": -109.2706245012838,
+        "dx": 0.00999146212392445,
+        "x": 15576,
+        "z": 20622228,
+        "k": 57937
+      },
+      {
+        "iteration": 1100,
+        "energy": -109.27114362904935,
+        "dx": 0.009682331377366543,
+        "x": 17131,
+        "z": 22480627,
+        "k": 57726
+      },
+      {
+        "iteration": 1200,
+        "energy": -109.27161450149174,
+        "dx": 0.011455429627348041,
+        "x": 18680,
+        "z": 24208176,
+        "k": 58211
+      },
+      {
+        "iteration": 1300,
+        "energy": -109.27203428816536,
+        "dx": 0.009164495365910548,
+        "x": 20233,
+        "z": 26030155,
+        "k": 56981
+      },
+      {
+        "iteration": 1400,
+        "energy": -109.27239420675403,
+        "dx": 0.008217521097717657,
+        "x": 21805,
+        "z": 27760135,
+        "k": 57410
+      },
+      {
+        "iteration": 1500,
+        "energy": -109.27273103275478,
+        "dx": 0.007832665259940755,
+        "x": 23382,
+        "z": 29512234,
+        "k": 57691
+      },
+      {
+        "iteration": 1600,
+        "energy": -109.27304880155499,
+        "dx": 0.008649106061001348,
+        "x": 24958,
+        "z": 31238905,
+        "k": 58452
+      },
+      {
+        "iteration": 1700,
+        "energy": -109.27332900468451,
+        "dx": 0.007293987680256437,
+        "x": 26541,
+        "z": 32841631,
+        "k": 57736
+      },
+      {
+        "iteration": 1800,
+        "energy": -109.27360135478504,
+        "dx": 0.007609786880207933,
+        "x": 28117,
+        "z": 34494960,
+        "k": 57385
+      },
+      {
+        "iteration": 1900,
+        "energy": -109.2738531227587,
+        "dx": 0.005900623674065609,
+        "x": 29676,
+        "z": 36079335,
+        "k": 57891
+      },
+      {
+        "iteration": 2000,
+        "energy": -109.27408433232479,
+        "dx": 0.008605462684203844,
+        "x": 31247,
+        "z": 37642359,
+        "k": 54993
+      }
+    ],
+    "all_exit_codes_zero": true
+  },
+  "studies": {
+    "recv_reuse": {
+      "job": 1050267,
+      "variants": {
+        "baseline": {
+          "wall_s": 29.75,
+          "stdout_timer_s": 28.4,
+          "launcher_max_child_rss_kib": 3458472,
+          "ranks": [
+            {
+              "rank": 0,
+              "launch": "rank=0 placement=spread node=0 cpus=1,2 threads=2 host=bigMem0 allowed=1,2,16,17,33,34,48,49",
+              "layout": {
+                "rank": 0,
+                "host": "bigMem0",
+                "expected_threads": 2,
+                "actual_threads": 2,
+                "omp_max_threads": 2,
+                "affinity_cpus": [
+                  1
+                ]
+              },
+              "iteration_s": 26.2555767179001,
+              "pre_solver_s": 1.58860194310546,
+              "omp_s": 23.99645652924668,
+              "mpi_s": 0.35298396507278096,
+              "non_mpi_non_omp_s": 1.906136223580642,
+              "stage_sum_s": 26.173362410627252,
+              "unassigned_stage_s": 0.0822143072728494,
+              "route_local_s": 0.35693941335193796,
+              "stages": {
+                "unclassified": {
+                  "stage_s": 0,
+                  "mpi_s": 0.000135374721139669,
+                  "omp_s": 0,
+                  "mpi_calls": 60,
+                  "omp_calls": 0
+                },
+                "select_local": {
+                  "stage_s": 5.78981804009527,
+                  "mpi_s": 0,
+                  "omp_s": 5.78264806349762,
+                  "mpi_calls": 0,
+                  "omp_calls": 2000
+                },
+                "select_comm": {
+                  "stage_s": 0.0526329528074712,
+                  "mpi_s": 0.0364786775317043,
+                  "omp_s": 0,
+                  "mpi_calls": 6000,
+                  "omp_calls": 0
+                },
+                "get_selected": {
+                  "stage_s": 0.0126157598569989,
+                  "mpi_s": 0.00628461595624685,
+                  "omp_s": 0,
+                  "mpi_calls": 2000,
+                  "omp_calls": 0
+                },
+                "block_solve": {
+                  "stage_s": 0.154735963093117,
+                  "mpi_s": 0.000824082409963012,
+                  "omp_s": 0,
+                  "mpi_calls": 4000,
+                  "omp_calls": 0
+                },
+                "enum_hij_pack": {
+                  "stage_s": 1.37074501556344,
+                  "mpi_s": 0,
+                  "omp_s": 1.36860952270217,
+                  "mpi_calls": 0,
+                  "omp_calls": 2000
+                },
+                "route_comm": {
+                  "stage_s": 0.650218831375241,
+                  "mpi_s": 0.293279418023303,
+                  "omp_s": 0,
+                  "mpi_calls": 4000,
+                  "omp_calls": 0
+                },
+                "pending_update": {
+                  "stage_s": 10.3165161684155,
+                  "mpi_s": 0,
+                  "omp_s": 10.2403777893633,
+                  "mpi_calls": 0,
+                  "omp_calls": 6000
+                },
+                "hash_update": {
+                  "stage_s": 7.55068141291849,
+                  "mpi_s": 0,
+                  "omp_s": 6.60482115368359,
+                  "mpi_calls": 0,
+                  "omp_calls": 2000
+                },
+                "exact_z_allreduce": {
+                  "stage_s": 0.0215661651454866,
+                  "mpi_s": 0.0135673056356609,
+                  "omp_s": 0,
+                  "mpi_calls": 2000,
+                  "omp_calls": 0
+                },
+                "candidate": {
+                  "stage_s": 0.247318380046636,
+                  "mpi_s": 0,
+                  "omp_s": 0,
+                  "mpi_calls": 0,
+                  "omp_calls": 0
+                },
+                "scalar_update": {
+                  "stage_s": 0.00651372130960226,
+                  "mpi_s": 0.00241449079476297,
+                  "omp_s": 0,
+                  "mpi_calls": 2000,
+                  "omp_calls": 0
+                },
+                "origin_coordinate_pick": {
+                  "stage_s": 0,
+                  "mpi_s": 0,
+                  "omp_s": 0,
+                  "mpi_calls": 0,
+                  "omp_calls": 0
+                },
+                "origin_coordinate_update": {
+                  "stage_s": 0,
+                  "mpi_s": 0,
+                  "omp_s": 0,
+                  "mpi_calls": 0,
+                  "omp_calls": 0
+                },
+                "origin_wavefunction_update": {
+                  "stage_s": 0,
+                  "mpi_s": 0,
+                  "omp_s": 0,
+                  "mpi_calls": 0,
+                  "omp_calls": 0
+                },
+                "origin_energy_estimate": {
+                  "stage_s": 0,
+                  "mpi_s": 0,
+                  "omp_s": 0,
+                  "mpi_calls": 0,
+                  "omp_calls": 0
+                }
+              },
+              "mpi": {
+                "Allreduce": {
+                  "seconds": 0.0199872963130474,
+                  "calls": 4060
+                },
+                "Alltoall": {
+                  "seconds": 0.0328938993625343,
+                  "calls": 2000
+                },
+                "Alltoallv": {
+                  "seconds": 0.260385518660769,
+                  "calls": 2000
+                },
+                "Bcast": {
+                  "seconds": 0.00609909230843186,
+                  "calls": 10000
+                },
+                "Allgather": {
+                  "seconds": 0.0336181584279984,
+                  "calls": 2000
+                },
+                "Gather": {
+                  "seconds": 0,
+                  "calls": 0
+                },
+                "Reduce": {
+                  "seconds": 0,
+                  "calls": 0
+                },
+                "Barrier": {
+                  "seconds": 0,
+                  "calls": 0
+                },
+                "Allgatherv": {
+                  "seconds": 0,
+                  "calls": 0
+                },
+                "Gatherv": {
+                  "seconds": 0,
+                  "calls": 0
+                },
+                "Scatterv": {
+                  "seconds": 0,
+                  "calls": 0
+                },
+                "other": {
+                  "seconds": 0,
+                  "calls": 0
+                }
+              },
+              "counters": [
+                1197368800,
+                1196892080,
+                59868440,
+                59844604,
+                58679001,
+                57692360
+              ],
+              "io_s": 0.046630775555968285,
+              "longest_io_s": 0.0033460520207881927
+            },
+            {
+              "rank": 1,
+              "launch": "rank=1 placement=spread node=1 cpus=16,17 threads=2 host=bigMem0 allowed=1,2,16,17,33,34,48,49",
+              "layout": {
+                "rank": 1,
+                "host": "bigMem0",
+                "expected_threads": 2,
+                "actual_threads": 2,
+                "omp_max_threads": 2,
+                "affinity_cpus": [
+                  16
+                ]
+              },
+              "iteration_s": 26.2540581820067,
+              "pre_solver_s": 1.59091595094651,
+              "omp_s": 23.28548291511834,
+              "mpi_s": 1.213027166901157,
+              "non_mpi_non_omp_s": 1.755548099987201,
+              "stage_sum_s": 26.163414630107575,
+              "unassigned_stage_s": 0.09064355189912376,
+              "route_local_s": 0.361121418187395,
+              "stages": {
+                "unclassified": {
+                  "stage_s": 0,
+                  "mpi_s": 0.000134221278131008,
+                  "omp_s": 0,
+                  "mpi_calls": 60,
+                  "omp_calls": 0
+                },
+                "select_local": {
+                  "stage_s": 5.69783607497811,
+                  "mpi_s": 0,
+                  "omp_s": 5.68911838950589,
+                  "mpi_calls": 0,
+                  "omp_calls": 2000
+                },
+                "select_comm": {
+                  "stage_s": 0.137433314230293,
+                  "mpi_s": 0.126877032453194,
+                  "omp_s": 0,
+                  "mpi_calls": 6000,
+                  "omp_calls": 0
+                },
+                "get_selected": {
+                  "stage_s": 0.0119262316729873,
+                  "mpi_s": 0.00528633804060519,
+                  "omp_s": 0,
+                  "mpi_calls": 2000,
+                  "omp_calls": 0
+                },
+                "block_solve": {
+                  "stage_s": 0.156863828189671,
+                  "mpi_s": 0.156099833548069,
+                  "omp_s": 0,
+                  "mpi_calls": 4000,
+                  "omp_calls": 0
+                },
+                "enum_hij_pack": {
+                  "stage_s": 1.37776038097218,
+                  "mpi_s": 0,
+                  "omp_s": 1.37537876516581,
+                  "mpi_calls": 0,
+                  "omp_calls": 2000
+                },
+                "route_comm": {
+                  "stage_s": 0.638368466170505,
+                  "mpi_s": 0.27724704798311,
+                  "omp_s": 0,
+                  "mpi_calls": 4000,
+                  "omp_calls": 0
+                },
+                "pending_update": {
+                  "stage_s": 9.8956601973623,
+                  "mpi_s": 0,
+                  "omp_s": 9.81963126012124,
+                  "mpi_calls": 0,
+                  "omp_calls": 6000
+                },
+                "hash_update": {
+                  "stage_s": 7.34284937777556,
+                  "mpi_s": 0,
+                  "omp_s": 6.4013545003254,
+                  "mpi_calls": 0,
+                  "omp_calls": 2000
+                },
+                "exact_z_allreduce": {
+                  "stage_s": 0.651313277427107,
+                  "mpi_s": 0.642041428247467,
+                  "omp_s": 0,
+                  "mpi_calls": 2000,
+                  "omp_calls": 0
+                },
+                "candidate": {
+                  "stage_s": 0.246593747287989,
+                  "mpi_s": 0,
+                  "omp_s": 0,
+                  "mpi_calls": 0,
+                  "omp_calls": 0
+                },
+                "scalar_update": {
+                  "stage_s": 0.00680973404087126,
+                  "mpi_s": 0.00534126535058022,
+                  "omp_s": 0,
+                  "mpi_calls": 2000,
+                  "omp_calls": 0
+                },
+                "origin_coordinate_pick": {
+                  "stage_s": 0,
+                  "mpi_s": 0,
+                  "omp_s": 0,
+                  "mpi_calls": 0,
+                  "omp_calls": 0
+                },
+                "origin_coordinate_update": {
+                  "stage_s": 0,
+                  "mpi_s": 0,
+                  "omp_s": 0,
+                  "mpi_calls": 0,
+                  "omp_calls": 0
+                },
+                "origin_wavefunction_update": {
+                  "stage_s": 0,
+                  "mpi_s": 0,
+                  "omp_s": 0,
+                  "mpi_calls": 0,
+                  "omp_calls": 0
+                },
+                "origin_energy_estimate": {
+                  "stage_s": 0,
+                  "mpi_s": 0,
+                  "omp_s": 0,
+                  "mpi_calls": 0,
+                  "omp_calls": 0
+                }
+              },
+              "mpi": {
+                "Allreduce": {
+                  "seconds": 0.647461987566203,
+                  "calls": 4060
+                },
+                "Alltoall": {
+                  "seconds": 0.0199799304828048,
+                  "calls": 2000
+                },
+                "Alltoallv": {
+                  "seconds": 0.257267117500305,
+                  "calls": 2000
+                },
+                "Bcast": {
+                  "seconds": 0.171509861480445,
+                  "calls": 10000
+                },
+                "Allgather": {
+                  "seconds": 0.116808269871399,
+                  "calls": 2000
+                },
+                "Gather": {
+                  "seconds": 0,
+                  "calls": 0
+                },
+                "Reduce": {
+                  "seconds": 0,
+                  "calls": 0
+                },
+                "Barrier": {
+                  "seconds": 0,
+                  "calls": 0
+                },
+                "Allgatherv": {
+                  "seconds": 0,
+                  "calls": 0
+                },
+                "Gatherv": {
+                  "seconds": 0,
+                  "calls": 0
+                },
+                "Scatterv": {
+                  "seconds": 0,
+                  "calls": 0
+                },
+                "other": {
+                  "seconds": 0,
+                  "calls": 0
+                }
+              },
+              "counters": [
+                1196774140,
+                1197250860,
+                59838707,
+                59862543,
+                58699291,
+                57712902
+              ],
+              "io_s": 0.05366780865006149,
+              "longest_io_s": 0.0037512038834393024
+            }
+          ]
+        },
+        "candidate": {
+          "wall_s": 29.17,
+          "stdout_timer_s": 27.8,
+          "launcher_max_child_rss_kib": 3458392,
+          "ranks": [
+            {
+              "rank": 0,
+              "launch": "rank=0 placement=spread node=0 cpus=1,2 threads=2 host=bigMem0 allowed=1,2,16,17,33,34,48,49",
+              "layout": {
+                "rank": 0,
+                "host": "bigMem0",
+                "expected_threads": 2,
+                "actual_threads": 2,
+                "omp_max_threads": 2,
+                "affinity_cpus": [
+                  1
+                ]
+              },
+              "iteration_s": 25.7301425358746,
+              "pre_solver_s": 1.56469810497947,
+              "omp_s": 23.49212517263367,
+              "mpi_s": 0.4765014173462984,
+              "non_mpi_non_omp_s": 1.7615159458946297,
+              "stage_sum_s": 25.639995031058792,
+              "unassigned_stage_s": 0.09014750481580691,
+              "route_local_s": 0.19650776637718104,
+              "stages": {
+                "unclassified": {
+                  "stage_s": 0,
+                  "mpi_s": 0.00012514041736722,
+                  "omp_s": 0,
+                  "mpi_calls": 60,
+                  "omp_calls": 0
+                },
+                "select_local": {
+                  "stage_s": 5.80544362543151,
+                  "mpi_s": 0,
+                  "omp_s": 5.79750592284836,
+                  "mpi_calls": 0,
+                  "omp_calls": 2000
+                },
+                "select_comm": {
+                  "stage_s": 0.0513781560584903,
+                  "mpi_s": 0.0346617889590561,
+                  "omp_s": 0,
+                  "mpi_calls": 6000,
+                  "omp_calls": 0
+                },
+                "get_selected": {
+                  "stage_s": 0.0132050355896354,
+                  "mpi_s": 0.00642563030123711,
+                  "omp_s": 0,
+                  "mpi_calls": 2000,
+                  "omp_calls": 0
+                },
+                "block_solve": {
+                  "stage_s": 0.157920624595135,
+                  "mpi_s": 0.000916710821911693,
+                  "omp_s": 0,
+                  "mpi_calls": 4000,
+                  "omp_calls": 0
+                },
+                "enum_hij_pack": {
+                  "stage_s": 1.44425834272988,
+                  "mpi_s": 0,
+                  "omp_s": 1.44229904026724,
+                  "mpi_calls": 0,
+                  "omp_calls": 2000
+                },
+                "route_comm": {
+                  "stage_s": 0.535100468667224,
+                  "mpi_s": 0.338592702290043,
+                  "omp_s": 0,
+                  "mpi_calls": 4000,
+                  "omp_calls": 0
+                },
+                "pending_update": {
+                  "stage_s": 9.76333110337146,
+                  "mpi_s": 0,
+                  "omp_s": 9.68770017381757,
+                  "mpi_calls": 0,
+                  "omp_calls": 6000
+                },
+                "hash_update": {
+                  "stage_s": 7.51288933889009,
+                  "mpi_s": 0,
+                  "omp_s": 6.5646200357005,
+                  "mpi_calls": 0,
+                  "omp_calls": 2000
+                },
+                "exact_z_allreduce": {
+                  "stage_s": 0.101986972149462,
+                  "mpi_s": 0.0929256554227322,
+                  "omp_s": 0,
+                  "mpi_calls": 2000,
+                  "omp_calls": 0
+                },
+                "candidate": {
+                  "stage_s": 0.247190767899156,
+                  "mpi_s": 0,
+                  "omp_s": 0,
+                  "mpi_calls": 0,
+                  "omp_calls": 0
+                },
+                "scalar_update": {
+                  "stage_s": 0.00729059567674994,
+                  "mpi_s": 0.00285378913395107,
+                  "omp_s": 0,
+                  "mpi_calls": 2000,
+                  "omp_calls": 0
+                },
+                "origin_coordinate_pick": {
+                  "stage_s": 0,
+                  "mpi_s": 0,
+                  "omp_s": 0,
+                  "mpi_calls": 0,
+                  "omp_calls": 0
+                },
+                "origin_coordinate_update": {
+                  "stage_s": 0,
+                  "mpi_s": 0,
+                  "omp_s": 0,
+                  "mpi_calls": 0,
+                  "omp_calls": 0
+                },
+                "origin_wavefunction_update": {
+                  "stage_s": 0,
+                  "mpi_s": 0,
+                  "omp_s": 0,
+                  "mpi_calls": 0,
+                  "omp_calls": 0
+                },
+                "origin_energy_estimate": {
+                  "stage_s": 0,
+                  "mpi_s": 0,
+                  "omp_s": 0,
+                  "mpi_calls": 0,
+                  "omp_calls": 0
+                }
+              },
+              "mpi": {
+                "Allreduce": {
+                  "seconds": 0.0994764261413366,
+                  "calls": 4060
+                },
+                "Alltoall": {
+                  "seconds": 0.0347498906776309,
+                  "calls": 2000
+                },
+                "Alltoallv": {
+                  "seconds": 0.303842811612412,
+                  "calls": 2000
+                },
+                "Bcast": {
+                  "seconds": 0.00644914689473808,
+                  "calls": 10000
+                },
+                "Allgather": {
+                  "seconds": 0.0319831420201808,
+                  "calls": 2000
+                },
+                "Gather": {
+                  "seconds": 0,
+                  "calls": 0
+                },
+                "Reduce": {
+                  "seconds": 0,
+                  "calls": 0
+                },
+                "Barrier": {
+                  "seconds": 0,
+                  "calls": 0
+                },
+                "Allgatherv": {
+                  "seconds": 0,
+                  "calls": 0
+                },
+                "Gatherv": {
+                  "seconds": 0,
+                  "calls": 0
+                },
+                "Scatterv": {
+                  "seconds": 0,
+                  "calls": 0
+                },
+                "other": {
+                  "seconds": 0,
+                  "calls": 0
+                }
+              },
+              "counters": [
+                1197368800,
+                1196892080,
+                59868440,
+                59844604,
+                58679001,
+                57692360
+              ],
+              "io_s": 0.054976793471723795,
+              "longest_io_s": 0.007188485935330391
+            },
+            {
+              "rank": 1,
+              "launch": "rank=1 placement=spread node=1 cpus=16,17 threads=2 host=bigMem0 allowed=1,2,16,17,33,34,48,49",
+              "layout": {
+                "rank": 1,
+                "host": "bigMem0",
+                "expected_threads": 2,
+                "actual_threads": 2,
+                "omp_max_threads": 2,
+                "affinity_cpus": [
+                  16
+                ]
+              },
+              "iteration_s": 25.7289729670156,
+              "pre_solver_s": 1.56643805908971,
+              "omp_s": 23.157873272197328,
+              "mpi_s": 0.9726431693416093,
+              "non_mpi_non_omp_s": 1.5984565254766632,
+              "stage_sum_s": 25.63232986954973,
+              "unassigned_stage_s": 0.09664309746587207,
+              "route_local_s": 0.19882452138699597,
+              "stages": {
+                "unclassified": {
+                  "stage_s": 0,
+                  "mpi_s": 0.000136373098939657,
+                  "omp_s": 0,
+                  "mpi_calls": 60,
+                  "omp_calls": 0
+                },
+                "select_local": {
+                  "stage_s": 5.69814685243182,
+                  "mpi_s": 0,
+                  "omp_s": 5.6902607746888,
+                  "mpi_calls": 0,
+                  "omp_calls": 2000
+                },
+                "select_comm": {
+                  "stage_s": 0.156055652070791,
+                  "mpi_s": 0.145658047636971,
+                  "omp_s": 0,
+                  "mpi_calls": 6000,
+                  "omp_calls": 0
+                },
+                "get_selected": {
+                  "stage_s": 0.0118165486492217,
+                  "mpi_s": 0.00505371694453061,
+                  "omp_s": 0,
+                  "mpi_calls": 2000,
+                  "omp_calls": 0
+                },
+                "block_solve": {
+                  "stage_s": 0.160281835123897,
+                  "mpi_s": 0.159188866615295,
+                  "omp_s": 0,
+                  "mpi_calls": 4000,
+                  "omp_calls": 0
+                },
+                "enum_hij_pack": {
+                  "stage_s": 1.45669100643136,
+                  "mpi_s": 0,
+                  "omp_s": 1.4541204974521,
+                  "mpi_calls": 0,
+                  "omp_calls": 2000
+                },
+                "route_comm": {
+                  "stage_s": 0.520219090161845,
+                  "mpi_s": 0.321394568774849,
+                  "omp_s": 0,
+                  "mpi_calls": 4000,
+                  "omp_calls": 0
+                },
+                "pending_update": {
+                  "stage_s": 9.7100985867437,
+                  "mpi_s": 0,
+                  "omp_s": 9.63377901376225,
+                  "mpi_calls": 0,
+                  "omp_calls": 6000
+                },
+                "hash_update": {
+                  "stage_s": 7.32476581633091,
+                  "mpi_s": 0,
+                  "omp_s": 6.37971298629418,
+                  "mpi_calls": 0,
+                  "omp_calls": 2000
+                },
+                "exact_z_allreduce": {
+                  "stage_s": 0.343333723722026,
+                  "mpi_s": 0.334419177379459,
+                  "omp_s": 0,
+                  "mpi_calls": 2000,
+                  "omp_calls": 0
+                },
+                "candidate": {
+                  "stage_s": 0.242641369113699,
+                  "mpi_s": 0,
+                  "omp_s": 0,
+                  "mpi_calls": 0,
+                  "omp_calls": 0
+                },
+                "scalar_update": {
+                  "stage_s": 0.00827938877046108,
+                  "mpi_s": 0.00679241889156401,
+                  "omp_s": 0,
+                  "mpi_calls": 2000,
+                  "omp_calls": 0
+                },
+                "origin_coordinate_pick": {
+                  "stage_s": 0,
+                  "mpi_s": 0,
+                  "omp_s": 0,
+                  "mpi_calls": 0,
+                  "omp_calls": 0
+                },
+                "origin_coordinate_update": {
+                  "stage_s": 0,
+                  "mpi_s": 0,
+                  "omp_s": 0,
+                  "mpi_calls": 0,
+                  "omp_calls": 0
+                },
+                "origin_wavefunction_update": {
+                  "stage_s": 0,
+                  "mpi_s": 0,
+                  "omp_s": 0,
+                  "mpi_calls": 0,
+                  "omp_calls": 0
+                },
+                "origin_energy_estimate": {
+                  "stage_s": 0,
+                  "mpi_s": 0,
+                  "omp_s": 0,
+                  "mpi_calls": 0,
+                  "omp_calls": 0
+                }
+              },
+              "mpi": {
+                "Allreduce": {
+                  "seconds": 0.339609267422929,
+                  "calls": 4060
+                },
+                "Alltoall": {
+                  "seconds": 0.0186766791157424,
+                  "calls": 2000
+                },
+                "Alltoallv": {
+                  "seconds": 0.302717889659107,
+                  "calls": 2000
+                },
+                "Bcast": {
+                  "seconds": 0.177630609367043,
+                  "calls": 10000
+                },
+                "Allgather": {
+                  "seconds": 0.134008723776788,
+                  "calls": 2000
+                },
+                "Gather": {
+                  "seconds": 0,
+                  "calls": 0
+                },
+                "Reduce": {
+                  "seconds": 0,
+                  "calls": 0
+                },
+                "Barrier": {
+                  "seconds": 0,
+                  "calls": 0
+                },
+                "Allgatherv": {
+                  "seconds": 0,
+                  "calls": 0
+                },
+                "Gatherv": {
+                  "seconds": 0,
+                  "calls": 0
+                },
+                "Scatterv": {
+                  "seconds": 0,
+                  "calls": 0
+                },
+                "other": {
+                  "seconds": 0,
+                  "calls": 0
+                }
+              },
+              "counters": [
+                1196774140,
+                1197250860,
+                59838707,
+                59862543,
+                58699291,
+                57712902
+              ],
+              "io_s": 0.05961190885864198,
+              "longest_io_s": 0.006630033953115344
+            }
+          ]
+        }
+      },
+      "byte_test": "{\"ok\":true,\"ranks\":2,\"paths\":2,\"sizes_per_path\":10}",
+      "wall_reduction_percent": 1.9495798319327673,
+      "iteration_reduction_percent": 2.0012288729018124
+    },
+    "parallel_pack": {
+      "job": 1050268,
+      "variants": {
+        "baseline": {
+          "wall_s": 29.15,
+          "stdout_timer_s": 27.8,
+          "launcher_max_child_rss_kib": 3458480,
+          "ranks": [
+            {
+              "rank": 0,
+              "launch": "rank=0 placement=spread node=0 cpus=3,4 threads=2 host=bigMem0 allowed=3,4,18,19,35,36,50,51",
+              "layout": {
+                "rank": 0,
+                "host": "bigMem0",
+                "expected_threads": 2,
+                "actual_threads": 2,
+                "omp_max_threads": 2,
+                "affinity_cpus": [
+                  3
+                ]
+              },
+              "iteration_s": 25.6754007160198,
+              "pre_solver_s": 1.57355513190851,
+              "omp_s": 23.36787307681515,
+              "mpi_s": 0.4021363118663431,
+              "non_mpi_non_omp_s": 1.9053913273383074,
+              "stage_sum_s": 25.593853652477264,
+              "unassigned_stage_s": 0.08154706354253705,
+              "route_local_s": 0.35207721940241704,
+              "stages": {
+                "unclassified": {
+                  "stage_s": 0,
+                  "mpi_s": 0.000115610891953111,
+                  "omp_s": 0,
+                  "mpi_calls": 60,
+                  "omp_calls": 0
+                },
+                "select_local": {
+                  "stage_s": 5.61981758731417,
+                  "mpi_s": 0,
+                  "omp_s": 5.61132852802984,
+                  "mpi_calls": 0,
+                  "omp_calls": 2000
+                },
+                "select_comm": {
+                  "stage_s": 0.0677305532153696,
+                  "mpi_s": 0.0510851573199034,
+                  "omp_s": 0,
+                  "mpi_calls": 6000,
+                  "omp_calls": 0
+                },
+                "get_selected": {
+                  "stage_s": 0.0115536984521896,
+                  "mpi_s": 0.00546702346764505,
+                  "omp_s": 0,
+                  "mpi_calls": 2000,
+                  "omp_calls": 0
+                },
+                "block_solve": {
+                  "stage_s": 0.158308776561171,
+                  "mpi_s": 0.000900615938007832,
+                  "omp_s": 0,
+                  "mpi_calls": 4000,
+                  "omp_calls": 0
+                },
+                "enum_hij_pack": {
+                  "stage_s": 1.36685999413021,
+                  "mpi_s": 0,
+                  "omp_s": 1.36495616380125,
+                  "mpi_calls": 0,
+                  "omp_calls": 2000
+                },
+                "route_comm": {
+                  "stage_s": 0.632387054385617,
+                  "mpi_s": 0.2803098349832,
+                  "omp_s": 0,
+                  "mpi_calls": 4000,
+                  "omp_calls": 0
+                },
+                "pending_update": {
+                  "stage_s": 9.96513370634057,
+                  "mpi_s": 0,
+                  "omp_s": 9.89157574623823,
+                  "mpi_calls": 0,
+                  "omp_calls": 6000
+                },
+                "hash_update": {
+                  "stage_s": 7.4451996749267,
+                  "mpi_s": 0,
+                  "omp_s": 6.50001263874583,
+                  "mpi_calls": 0,
+                  "omp_calls": 2000
+                },
+                "exact_z_allreduce": {
+                  "stage_s": 0.0698500745929778,
+                  "mpi_s": 0.0615904359146953,
+                  "omp_s": 0,
+                  "mpi_calls": 2000,
+                  "omp_calls": 0
+                },
+                "candidate": {
+                  "stage_s": 0.250652167247608,
+                  "mpi_s": 0,
+                  "omp_s": 0,
+                  "mpi_calls": 0,
+                  "omp_calls": 0
+                },
+                "scalar_update": {
+                  "stage_s": 0.00636036531068385,
+                  "mpi_s": 0.00266763335093856,
+                  "omp_s": 0,
+                  "mpi_calls": 2000,
+                  "omp_calls": 0
+                },
+                "origin_coordinate_pick": {
+                  "stage_s": 0,
+                  "mpi_s": 0,
+                  "omp_s": 0,
+                  "mpi_calls": 0,
+                  "omp_calls": 0
+                },
+                "origin_coordinate_update": {
+                  "stage_s": 0,
+                  "mpi_s": 0,
+                  "omp_s": 0,
+                  "mpi_calls": 0,
+                  "omp_calls": 0
+                },
+                "origin_wavefunction_update": {
+                  "stage_s": 0,
+                  "mpi_s": 0,
+                  "omp_s": 0,
+                  "mpi_calls": 0,
+                  "omp_calls": 0
+                },
+                "origin_energy_estimate": {
+                  "stage_s": 0,
+                  "mpi_s": 0,
+                  "omp_s": 0,
+                  "mpi_calls": 0,
+                  "omp_calls": 0
+                }
+              },
+              "mpi": {
+                "Allreduce": {
+                  "seconds": 0.0671730702742934,
+                  "calls": 4060
+                },
+                "Alltoall": {
+                  "seconds": 0.0237531815655529,
+                  "calls": 2000
+                },
+                "Alltoallv": {
+                  "seconds": 0.256556653417647,
+                  "calls": 2000
+                },
+                "Bcast": {
+                  "seconds": 0.00675327051430941,
+                  "calls": 10000
+                },
+                "Allgather": {
+                  "seconds": 0.0479001360945404,
+                  "calls": 2000
+                },
+                "Gather": {
+                  "seconds": 0,
+                  "calls": 0
+                },
+                "Reduce": {
+                  "seconds": 0,
+                  "calls": 0
+                },
+                "Barrier": {
+                  "seconds": 0,
+                  "calls": 0
+                },
+                "Allgatherv": {
+                  "seconds": 0,
+                  "calls": 0
+                },
+                "Gatherv": {
+                  "seconds": 0,
+                  "calls": 0
+                },
+                "Scatterv": {
+                  "seconds": 0,
+                  "calls": 0
+                },
+                "other": {
+                  "seconds": 0,
+                  "calls": 0
+                }
+              },
+              "counters": [
+                1197368800,
+                1196892080,
+                59868440,
+                59844604,
+                58679001,
+                57692360
+              ],
+              "io_s": 0.046463317004963756,
+              "longest_io_s": 0.00322922901250422
+            },
+            {
+              "rank": 1,
+              "launch": "rank=1 placement=spread node=1 cpus=18,19 threads=2 host=bigMem0 allowed=3,4,18,19,35,36,50,51",
+              "layout": {
+                "rank": 1,
+                "host": "bigMem0",
+                "expected_threads": 2,
+                "actual_threads": 2,
+                "omp_max_threads": 2,
+                "affinity_cpus": [
+                  18
+                ]
+              },
+              "iteration_s": 25.6730265140068,
+              "pre_solver_s": 1.57525838096626,
+              "omp_s": 23.20869489596225,
+              "mpi_s": 0.72863808996044,
+              "non_mpi_non_omp_s": 1.7356935280841101,
+              "stage_sum_s": 25.5898333254736,
+              "unassigned_stage_s": 0.08319318853320112,
+              "route_local_s": 0.35406767134554695,
+              "stages": {
+                "unclassified": {
+                  "stage_s": 0,
+                  "mpi_s": 0.000169247388839722,
+                  "omp_s": 0,
+                  "mpi_calls": 60,
+                  "omp_calls": 0
+                },
+                "select_local": {
+                  "stage_s": 5.60647762077861,
+                  "mpi_s": 0,
+                  "omp_s": 5.59936485113576,
+                  "mpi_calls": 0,
+                  "omp_calls": 2000
+                },
+                "select_comm": {
+                  "stage_s": 0.0820883801206946,
+                  "mpi_s": 0.0725647497456521,
+                  "omp_s": 0,
+                  "mpi_calls": 6000,
+                  "omp_calls": 0
+                },
+                "get_selected": {
+                  "stage_s": 0.010286774020642,
+                  "mpi_s": 0.00412280764430761,
+                  "omp_s": 0,
+                  "mpi_calls": 2000,
+                  "omp_calls": 0
+                },
+                "block_solve": {
+                  "stage_s": 0.160156240686774,
+                  "mpi_s": 0.159407021244988,
+                  "omp_s": 0,
+                  "mpi_calls": 4000,
+                  "omp_calls": 0
+                },
+                "enum_hij_pack": {
+                  "stage_s": 1.37162810773589,
+                  "mpi_s": 0,
+                  "omp_s": 1.36962384660728,
+                  "mpi_calls": 0,
+                  "omp_calls": 2000
+                },
+                "route_comm": {
+                  "stage_s": 0.627713131951168,
+                  "mpi_s": 0.273645460605621,
+                  "omp_s": 0,
+                  "mpi_calls": 4000,
+                  "omp_calls": 0
+                },
+                "pending_update": {
+                  "stage_s": 9.91332611069083,
+                  "mpi_s": 0,
+                  "omp_s": 9.8391189542599,
+                  "mpi_calls": 0,
+                  "omp_calls": 6000
+                },
+                "hash_update": {
+                  "stage_s": 7.34478759812191,
+                  "mpi_s": 0,
+                  "omp_s": 6.40058724395931,
+                  "mpi_calls": 0,
+                  "omp_calls": 2000
+                },
+                "exact_z_allreduce": {
+                  "stage_s": 0.221615698654205,
+                  "mpi_s": 0.213172930525616,
+                  "omp_s": 0,
+                  "mpi_calls": 2000,
+                  "omp_calls": 0
+                },
+                "candidate": {
+                  "stage_s": 0.24482311704196,
+                  "mpi_s": 0,
+                  "omp_s": 0,
+                  "mpi_calls": 0,
+                  "omp_calls": 0
+                },
+                "scalar_update": {
+                  "stage_s": 0.00693054567091167,
+                  "mpi_s": 0.00555587280541658,
+                  "omp_s": 0,
+                  "mpi_calls": 2000,
+                  "omp_calls": 0
+                },
+                "origin_coordinate_pick": {
+                  "stage_s": 0,
+                  "mpi_s": 0,
+                  "omp_s": 0,
+                  "mpi_calls": 0,
+                  "omp_calls": 0
+                },
+                "origin_coordinate_update": {
+                  "stage_s": 0,
+                  "mpi_s": 0,
+                  "omp_s": 0,
+                  "mpi_calls": 0,
+                  "omp_calls": 0
+                },
+                "origin_wavefunction_update": {
+                  "stage_s": 0,
+                  "mpi_s": 0,
+                  "omp_s": 0,
+                  "mpi_calls": 0,
+                  "omp_calls": 0
+                },
+                "origin_energy_estimate": {
+                  "stage_s": 0,
+                  "mpi_s": 0,
+                  "omp_s": 0,
+                  "mpi_calls": 0,
+                  "omp_calls": 0
+                }
+              },
+              "mpi": {
+                "Allreduce": {
+                  "seconds": 0.217464985558763,
+                  "calls": 4060
+                },
+                "Alltoall": {
+                  "seconds": 0.01809774315916,
+                  "calls": 2000
+                },
+                "Alltoallv": {
+                  "seconds": 0.255547717446461,
+                  "calls": 2000
+                },
+                "Bcast": {
+                  "seconds": 0.176354937953874,
+                  "calls": 10000
+                },
+                "Allgather": {
+                  "seconds": 0.061172705842182,
+                  "calls": 2000
+                },
+                "Gather": {
+                  "seconds": 0,
+                  "calls": 0
+                },
+                "Reduce": {
+                  "seconds": 0,
+                  "calls": 0
+                },
+                "Barrier": {
+                  "seconds": 0,
+                  "calls": 0
+                },
+                "Allgatherv": {
+                  "seconds": 0,
+                  "calls": 0
+                },
+                "Gatherv": {
+                  "seconds": 0,
+                  "calls": 0
+                },
+                "Scatterv": {
+                  "seconds": 0,
+                  "calls": 0
+                },
+                "other": {
+                  "seconds": 0,
+                  "calls": 0
+                }
+              },
+              "counters": [
+                1196774140,
+                1197250860,
+                59838707,
+                59862543,
+                58699291,
+                57712902
+              ],
+              "io_s": 0.051232892321422696,
+              "longest_io_s": 0.0038329570088535547
+            }
+          ]
+        },
+        "candidate": {
+          "wall_s": 28.97,
+          "stdout_timer_s": 27.6,
+          "launcher_max_child_rss_kib": 3458220,
+          "ranks": [
+            {
+              "rank": 0,
+              "launch": "rank=0 placement=spread node=0 cpus=3,4 threads=2 host=bigMem0 allowed=3,4,18,19,35,36,50,51",
+              "layout": {
+                "rank": 0,
+                "host": "bigMem0",
+                "expected_threads": 2,
+                "actual_threads": 2,
+                "omp_max_threads": 2,
+                "affinity_cpus": [
+                  3
+                ]
+              },
+              "iteration_s": 25.5048493570648,
+              "pre_solver_s": 1.55577016295865,
+              "omp_s": 23.0494125438854,
+              "mpi_s": 0.5744755635969347,
+              "non_mpi_non_omp_s": 1.8809612495824652,
+              "stage_sum_s": 25.418084037490196,
+              "unassigned_stage_s": 0.08676531957460298,
+              "route_local_s": 0.35109124192967994,
+              "stages": {
+                "unclassified": {
+                  "stage_s": 0,
+                  "mpi_s": 0.0000894078984856606,
+                  "omp_s": 0,
+                  "mpi_calls": 60,
+                  "omp_calls": 0
+                },
+                "select_local": {
+                  "stage_s": 5.68503327923827,
+                  "mpi_s": 0,
+                  "omp_s": 5.67770974221639,
+                  "mpi_calls": 0,
+                  "omp_calls": 2000
+                },
+                "select_comm": {
+                  "stage_s": 0.0523191492538899,
+                  "mpi_s": 0.0361790950410068,
+                  "omp_s": 0,
+                  "mpi_calls": 6000,
+                  "omp_calls": 0
+                },
+                "get_selected": {
+                  "stage_s": 0.0118620817083865,
+                  "mpi_s": 0.00495533179491758,
+                  "omp_s": 0,
+                  "mpi_calls": 2000,
+                  "omp_calls": 0
+                },
+                "block_solve": {
+                  "stage_s": 0.153657108778134,
+                  "mpi_s": 0.000880712876096368,
+                  "omp_s": 0,
+                  "mpi_calls": 4000,
+                  "omp_calls": 0
+                },
+                "enum_hij_pack": {
+                  "stage_s": 1.43909961800091,
+                  "mpi_s": 0,
+                  "omp_s": 1.43650030088611,
+                  "mpi_calls": 0,
+                  "omp_calls": 2000
+                },
+                "route_comm": {
+                  "stage_s": 0.612036909675226,
+                  "mpi_s": 0.260945667745546,
+                  "omp_s": 0,
+                  "mpi_calls": 4000,
+                  "omp_calls": 0
+                },
+                "pending_update": {
+                  "stage_s": 9.59481886518188,
+                  "mpi_s": 0,
+                  "omp_s": 9.52247546194121,
+                  "mpi_calls": 0,
+                  "omp_calls": 6000
+                },
+                "hash_update": {
+                  "stage_s": 7.33521775505506,
+                  "mpi_s": 0,
+                  "omp_s": 6.41272703884169,
+                  "mpi_calls": 0,
+                  "omp_calls": 2000
+                },
+                "exact_z_allreduce": {
+                  "stage_s": 0.277556483400986,
+                  "mpi_s": 0.268466434674338,
+                  "omp_s": 0,
+                  "mpi_calls": 2000,
+                  "omp_calls": 0
+                },
+                "candidate": {
+                  "stage_s": 0.249870496569201,
+                  "mpi_s": 0,
+                  "omp_s": 0,
+                  "mpi_calls": 0,
+                  "omp_calls": 0
+                },
+                "scalar_update": {
+                  "stage_s": 0.00661229062825441,
+                  "mpi_s": 0.00295891356654465,
+                  "omp_s": 0,
+                  "mpi_calls": 2000,
+                  "omp_calls": 0
+                },
+                "origin_coordinate_pick": {
+                  "stage_s": 0,
+                  "mpi_s": 0,
+                  "omp_s": 0,
+                  "mpi_calls": 0,
+                  "omp_calls": 0
+                },
+                "origin_coordinate_update": {
+                  "stage_s": 0,
+                  "mpi_s": 0,
+                  "omp_s": 0,
+                  "mpi_calls": 0,
+                  "omp_calls": 0
+                },
+                "origin_wavefunction_update": {
+                  "stage_s": 0,
+                  "mpi_s": 0,
+                  "omp_s": 0,
+                  "mpi_calls": 0,
+                  "omp_calls": 0
+                },
+                "origin_energy_estimate": {
+                  "stage_s": 0,
+                  "mpi_s": 0,
+                  "omp_s": 0,
+                  "mpi_calls": 0,
+                  "omp_calls": 0
+                }
+              },
+              "mpi": {
+                "Allreduce": {
+                  "seconds": 0.273511174367741,
+                  "calls": 4060
+                },
+                "Alltoall": {
+                  "seconds": 0.0248998596798629,
+                  "calls": 2000
+                },
+                "Alltoallv": {
+                  "seconds": 0.236045808065683,
+                  "calls": 2000
+                },
+                "Bcast": {
+                  "seconds": 0.00681223487481475,
+                  "calls": 10000
+                },
+                "Allgather": {
+                  "seconds": 0.0332064866088331,
+                  "calls": 2000
+                },
+                "Gather": {
+                  "seconds": 0,
+                  "calls": 0
+                },
+                "Reduce": {
+                  "seconds": 0,
+                  "calls": 0
+                },
+                "Barrier": {
+                  "seconds": 0,
+                  "calls": 0
+                },
+                "Allgatherv": {
+                  "seconds": 0,
+                  "calls": 0
+                },
+                "Gatherv": {
+                  "seconds": 0,
+                  "calls": 0
+                },
+                "Scatterv": {
+                  "seconds": 0,
+                  "calls": 0
+                },
+                "other": {
+                  "seconds": 0,
+                  "calls": 0
+                }
+              },
+              "counters": [
+                1197368800,
+                1196892080,
+                59868440,
+                59844604,
+                58679001,
+                57692360
+              ],
+              "io_s": 0.05031328508630395,
+              "longest_io_s": 0.003392623970285058
+            },
+            {
+              "rank": 1,
+              "launch": "rank=1 placement=spread node=1 cpus=18,19 threads=2 host=bigMem0 allowed=3,4,18,19,35,36,50,51",
+              "layout": {
+                "rank": 1,
+                "host": "bigMem0",
+                "expected_threads": 2,
+                "actual_threads": 2,
+                "omp_max_threads": 2,
+                "affinity_cpus": [
+                  18
+                ]
+              },
+              "iteration_s": 25.5072088311426,
+              "pre_solver_s": 1.5541022149846,
+              "omp_s": 23.20168552198447,
+              "mpi_s": 0.599440061720088,
+              "non_mpi_non_omp_s": 1.7060832474380412,
+              "stage_sum_s": 25.418162973830473,
+              "unassigned_stage_s": 0.08904585731212578,
+              "route_local_s": 0.350437246030197,
+              "stages": {
+                "unclassified": {
+                  "stage_s": 0,
+                  "mpi_s": 0.000137583585456014,
+                  "omp_s": 0,
+                  "mpi_calls": 60,
+                  "omp_calls": 0
+                },
+                "select_local": {
+                  "stage_s": 5.62718167994171,
+                  "mpi_s": 0,
+                  "omp_s": 5.620084899012,
+                  "mpi_calls": 0,
+                  "omp_calls": 2000
+                },
+                "select_comm": {
+                  "stage_s": 0.112886857241392,
+                  "mpi_s": 0.103239866904914,
+                  "omp_s": 0,
+                  "mpi_calls": 6000,
+                  "omp_calls": 0
+                },
+                "get_selected": {
+                  "stage_s": 0.0105591823812574,
+                  "mpi_s": 0.00452266540378332,
+                  "omp_s": 0,
+                  "mpi_calls": 2000,
+                  "omp_calls": 0
+                },
+                "block_solve": {
+                  "stage_s": 0.155546674737707,
+                  "mpi_s": 0.154757496435195,
+                  "omp_s": 0,
+                  "mpi_calls": 4000,
+                  "omp_calls": 0
+                },
+                "enum_hij_pack": {
+                  "stage_s": 1.44836071971804,
+                  "mpi_s": 0,
+                  "omp_s": 1.44616086990573,
+                  "mpi_calls": 0,
+                  "omp_calls": 2000
+                },
+                "route_comm": {
+                  "stage_s": 0.602464029565454,
+                  "mpi_s": 0.252026783535257,
+                  "omp_s": 0,
+                  "mpi_calls": 4000,
+                  "omp_calls": 0
+                },
+                "pending_update": {
+                  "stage_s": 9.86771249957383,
+                  "mpi_s": 0,
+                  "omp_s": 9.79482649103738,
+                  "mpi_calls": 0,
+                  "omp_calls": 6000
+                },
+                "hash_update": {
+                  "stage_s": 7.25243323645554,
+                  "mpi_s": 0,
+                  "omp_s": 6.34061326202936,
+                  "mpi_calls": 0,
+                  "omp_calls": 2000
+                },
+                "exact_z_allreduce": {
+                  "stage_s": 0.0872083592694253,
+                  "mpi_s": 0.078847189899534,
+                  "omp_s": 0,
+                  "mpi_calls": 2000,
+                  "omp_calls": 0
+                },
+                "candidate": {
+                  "stage_s": 0.24668957083486,
+                  "mpi_s": 0,
+                  "omp_s": 0,
+                  "mpi_calls": 0,
+                  "omp_calls": 0
+                },
+                "scalar_update": {
+                  "stage_s": 0.0071201641112566,
+                  "mpi_s": 0.00590847595594823,
+                  "omp_s": 0,
+                  "mpi_calls": 2000,
+                  "omp_calls": 0
+                },
+                "origin_coordinate_pick": {
+                  "stage_s": 0,
+                  "mpi_s": 0,
+                  "omp_s": 0,
+                  "mpi_calls": 0,
+                  "omp_calls": 0
+                },
+                "origin_coordinate_update": {
+                  "stage_s": 0,
+                  "mpi_s": 0,
+                  "omp_s": 0,
+                  "mpi_calls": 0,
+                  "omp_calls": 0
+                },
+                "origin_wavefunction_update": {
+                  "stage_s": 0,
+                  "mpi_s": 0,
+                  "omp_s": 0,
+                  "mpi_calls": 0,
+                  "omp_calls": 0
+                },
+                "origin_energy_estimate": {
+                  "stage_s": 0,
+                  "mpi_s": 0,
+                  "omp_s": 0,
+                  "mpi_calls": 0,
+                  "omp_calls": 0
+                }
+              },
+              "mpi": {
+                "Allreduce": {
+                  "seconds": 0.0835074388887733,
+                  "calls": 4060
+                },
+                "Alltoall": {
+                  "seconds": 0.0170419525820762,
+                  "calls": 2000
+                },
+                "Alltoallv": {
+                  "seconds": 0.234984830953181,
+                  "calls": 2000
+                },
+                "Bcast": {
+                  "seconds": 0.171379184350371,
+                  "calls": 10000
+                },
+                "Allgather": {
+                  "seconds": 0.0925266549456865,
+                  "calls": 2000
+                },
+                "Gather": {
+                  "seconds": 0,
+                  "calls": 0
+                },
+                "Reduce": {
+                  "seconds": 0,
+                  "calls": 0
+                },
+                "Barrier": {
+                  "seconds": 0,
+                  "calls": 0
+                },
+                "Allgatherv": {
+                  "seconds": 0,
+                  "calls": 0
+                },
+                "Gatherv": {
+                  "seconds": 0,
+                  "calls": 0
+                },
+                "Scatterv": {
+                  "seconds": 0,
+                  "calls": 0
+                },
+                "other": {
+                  "seconds": 0,
+                  "calls": 0
+                }
+              },
+              "counters": [
+                1196774140,
+                1197250860,
+                59838707,
+                59862543,
+                58699291,
+                57712902
+              ],
+              "io_s": 0.0555099721532315,
+              "longest_io_s": 0.004095017910003662
+            }
+          ]
+        }
+      },
+      "byte_test": "PACK_BYTES_PASS cases=35 ranks=2 rank0_checked_bytes=31470053",
+      "wall_reduction_percent": 0.6174957118353335,
+      "iteration_reduction_percent": 0.6642597747212148
+    },
+    "predecessor_diag": {
+      "job": 1050269,
+      "variants": {
+        "baseline": {
+          "wall_s": 29.29,
+          "stdout_timer_s": 27.9,
+          "launcher_max_child_rss_kib": 3458528,
+          "ranks": [
+            {
+              "rank": 0,
+              "launch": "rank=0 placement=spread node=0 cpus=5,6 threads=2 host=bigMem0 allowed=5,6,20,21,37,38,52,53",
+              "layout": {
+                "rank": 0,
+                "host": "bigMem0",
+                "expected_threads": 2,
+                "actual_threads": 2,
+                "omp_max_threads": 2,
+                "affinity_cpus": [
+                  5
+                ]
+              },
+              "iteration_s": 25.7879572391976,
+              "pre_solver_s": 1.57264781487174,
+              "omp_s": 23.43461375986225,
+              "mpi_s": 0.44706417340785276,
+              "non_mpi_non_omp_s": 1.906279305927498,
+              "stage_sum_s": 25.70667124004103,
+              "unassigned_stage_s": 0.0812859991565702,
+              "route_local_s": 0.348262707469985,
+              "stages": {
+                "unclassified": {
+                  "stage_s": 0,
+                  "mpi_s": 0.000106863211840391,
+                  "omp_s": 0,
+                  "mpi_calls": 60,
+                  "omp_calls": 0
+                },
+                "select_local": {
+                  "stage_s": 5.81320226821117,
+                  "mpi_s": 0,
+                  "omp_s": 5.80602338048629,
+                  "mpi_calls": 0,
+                  "omp_calls": 2000
+                },
+                "select_comm": {
+                  "stage_s": 0.0430060501676053,
+                  "mpi_s": 0.0262991969939321,
+                  "omp_s": 0,
+                  "mpi_calls": 6000,
+                  "omp_calls": 0
+                },
+                "get_selected": {
+                  "stage_s": 0.0117887374944985,
+                  "mpi_s": 0.00514872721396387,
+                  "omp_s": 0,
+                  "mpi_calls": 2000,
+                  "omp_calls": 0
+                },
+                "block_solve": {
+                  "stage_s": 0.156794970855117,
+                  "mpi_s": 0.000960540026426315,
+                  "omp_s": 0,
+                  "mpi_calls": 4000,
+                  "omp_calls": 0
+                },
+                "enum_hij_pack": {
+                  "stage_s": 1.37109506060369,
+                  "mpi_s": 0,
+                  "omp_s": 1.36879720375873,
+                  "mpi_calls": 0,
+                  "omp_calls": 2000
+                },
+                "route_comm": {
+                  "stage_s": 0.630896415095776,
+                  "mpi_s": 0.282633707625791,
+                  "omp_s": 0,
+                  "mpi_calls": 4000,
+                  "omp_calls": 0
+                },
+                "pending_update": {
+                  "stage_s": 9.72939272294752,
+                  "mpi_s": 0,
+                  "omp_s": 9.65617871819995,
+                  "mpi_calls": 0,
+                  "omp_calls": 6000
+                },
+                "hash_update": {
+                  "stage_s": 7.55166097497568,
+                  "mpi_s": 0,
+                  "omp_s": 6.60361445741728,
+                  "mpi_calls": 0,
+                  "omp_calls": 2000
+                },
+                "exact_z_allreduce": {
+                  "stage_s": 0.137790393084288,
+                  "mpi_s": 0.12916307291016,
+                  "omp_s": 0,
+                  "mpi_calls": 2000,
+                  "omp_calls": 0
+                },
+                "candidate": {
+                  "stage_s": 0.253664103336632,
+                  "mpi_s": 0,
+                  "omp_s": 0,
+                  "mpi_calls": 0,
+                  "omp_calls": 0
+                },
+                "scalar_update": {
+                  "stage_s": 0.0073795432690531,
+                  "mpi_s": 0.00275206542573869,
+                  "omp_s": 0,
+                  "mpi_calls": 2000,
+                  "omp_calls": 0
+                },
+                "origin_coordinate_pick": {
+                  "stage_s": 0,
+                  "mpi_s": 0,
+                  "omp_s": 0,
+                  "mpi_calls": 0,
+                  "omp_calls": 0
+                },
+                "origin_coordinate_update": {
+                  "stage_s": 0,
+                  "mpi_s": 0,
+                  "omp_s": 0,
+                  "mpi_calls": 0,
+                  "omp_calls": 0
+                },
+                "origin_wavefunction_update": {
+                  "stage_s": 0,
+                  "mpi_s": 0,
+                  "omp_s": 0,
+                  "mpi_calls": 0,
+                  "omp_calls": 0
+                },
+                "origin_energy_estimate": {
+                  "stage_s": 0,
+                  "mpi_s": 0,
+                  "omp_s": 0,
+                  "mpi_calls": 0,
+                  "omp_calls": 0
+                }
+              },
+              "mpi": {
+                "Allreduce": {
+                  "seconds": 0.134418663335964,
+                  "calls": 4060
+                },
+                "Alltoall": {
+                  "seconds": 0.0205784225836396,
+                  "calls": 2000
+                },
+                "Alltoallv": {
+                  "seconds": 0.262055285042152,
+                  "calls": 2000
+                },
+                "Bcast": {
+                  "seconds": 0.00687658763490617,
+                  "calls": 10000
+                },
+                "Allgather": {
+                  "seconds": 0.023135214811191,
+                  "calls": 2000
+                },
+                "Gather": {
+                  "seconds": 0,
+                  "calls": 0
+                },
+                "Reduce": {
+                  "seconds": 0,
+                  "calls": 0
+                },
+                "Barrier": {
+                  "seconds": 0,
+                  "calls": 0
+                },
+                "Allgatherv": {
+                  "seconds": 0,
+                  "calls": 0
+                },
+                "Gatherv": {
+                  "seconds": 0,
+                  "calls": 0
+                },
+                "Scatterv": {
+                  "seconds": 0,
+                  "calls": 0
+                },
+                "other": {
+                  "seconds": 0,
+                  "calls": 0
+                }
+              },
+              "counters": [
+                1197368800,
+                1196892080,
+                59868440,
+                59844604,
+                58679001,
+                57692360
+              ],
+              "io_s": 0.04568744427524507,
+              "longest_io_s": 0.003180739004164934
+            },
+            {
+              "rank": 1,
+              "launch": "rank=1 placement=spread node=1 cpus=20,21 threads=2 host=bigMem0 allowed=5,6,20,21,37,38,52,53",
+              "layout": {
+                "rank": 1,
+                "host": "bigMem0",
+                "expected_threads": 2,
+                "actual_threads": 2,
+                "omp_max_threads": 2,
+                "affinity_cpus": [
+                  20
+                ]
+              },
+              "iteration_s": 25.7866909680888,
+              "pre_solver_s": 1.57398601202294,
+              "omp_s": 23.26009953068569,
+              "mpi_s": 0.7964556263759728,
+              "non_mpi_non_omp_s": 1.7301358110271363,
+              "stage_sum_s": 25.701878997962922,
+              "unassigned_stage_s": 0.08481197012587671,
+              "route_local_s": 0.34508697735145705,
+              "stages": {
+                "unclassified": {
+                  "stage_s": 0,
+                  "mpi_s": 0.000170876504853368,
+                  "omp_s": 0,
+                  "mpi_calls": 60,
+                  "omp_calls": 0
+                },
+                "select_local": {
+                  "stage_s": 5.65455165901221,
+                  "mpi_s": 0,
+                  "omp_s": 5.64735934161581,
+                  "mpi_calls": 0,
+                  "omp_calls": 2000
+                },
+                "select_comm": {
+                  "stage_s": 0.203266702592373,
+                  "mpi_s": 0.193509552394971,
+                  "omp_s": 0,
+                  "mpi_calls": 6000,
+                  "omp_calls": 0
+                },
+                "get_selected": {
+                  "stage_s": 0.0109388022683561,
+                  "mpi_s": 0.00477010803297162,
+                  "omp_s": 0,
+                  "mpi_calls": 2000,
+                  "omp_calls": 0
+                },
+                "block_solve": {
+                  "stage_s": 0.158348742406815,
+                  "mpi_s": 0.157585453009233,
+                  "omp_s": 0,
+                  "mpi_calls": 4000,
+                  "omp_calls": 0
+                },
+                "enum_hij_pack": {
+                  "stage_s": 1.37088795681484,
+                  "mpi_s": 0,
+                  "omp_s": 1.36913055996411,
+                  "mpi_calls": 0,
+                  "omp_calls": 2000
+                },
+                "route_comm": {
+                  "stage_s": 0.629879964515567,
+                  "mpi_s": 0.28479298716411,
+                  "omp_s": 0,
+                  "mpi_calls": 4000,
+                  "omp_calls": 0
+                },
+                "pending_update": {
+                  "stage_s": 9.92131303274073,
+                  "mpi_s": 0,
+                  "omp_s": 9.84809836442582,
+                  "mpi_calls": 0,
+                  "omp_calls": 6000
+                },
+                "hash_update": {
+                  "stage_s": 7.34061562316492,
+                  "mpi_s": 0,
+                  "omp_s": 6.39551126467995,
+                  "mpi_calls": 0,
+                  "omp_calls": 2000
+                },
+                "exact_z_allreduce": {
+                  "stage_s": 0.156884604133666,
+                  "mpi_s": 0.148820445174351,
+                  "omp_s": 0,
+                  "mpi_calls": 2000,
+                  "omp_calls": 0
+                },
+                "candidate": {
+                  "stage_s": 0.247157830977812,
+                  "mpi_s": 0,
+                  "omp_s": 0,
+                  "mpi_calls": 0,
+                  "omp_calls": 0
+                },
+                "scalar_update": {
+                  "stage_s": 0.00803407933562994,
+                  "mpi_s": 0.00680620409548283,
+                  "omp_s": 0,
+                  "mpi_calls": 2000,
+                  "omp_calls": 0
+                },
+                "origin_coordinate_pick": {
+                  "stage_s": 0,
+                  "mpi_s": 0,
+                  "omp_s": 0,
+                  "mpi_calls": 0,
+                  "omp_calls": 0
+                },
+                "origin_coordinate_update": {
+                  "stage_s": 0,
+                  "mpi_s": 0,
+                  "omp_s": 0,
+                  "mpi_calls": 0,
+                  "omp_calls": 0
+                },
+                "origin_wavefunction_update": {
+                  "stage_s": 0,
+                  "mpi_s": 0,
+                  "omp_s": 0,
+                  "mpi_calls": 0,
+                  "omp_calls": 0
+                },
+                "origin_energy_estimate": {
+                  "stage_s": 0,
+                  "mpi_s": 0,
+                  "omp_s": 0,
+                  "mpi_calls": 0,
+                  "omp_calls": 0
+                }
+              },
+              "mpi": {
+                "Allreduce": {
+                  "seconds": 0.153761429712176,
+                  "calls": 4060
+                },
+                "Alltoall": {
+                  "seconds": 0.0232433041092008,
+                  "calls": 2000
+                },
+                "Alltoallv": {
+                  "seconds": 0.261549683054909,
+                  "calls": 2000
+                },
+                "Bcast": {
+                  "seconds": 0.175615886924788,
+                  "calls": 10000
+                },
+                "Allgather": {
+                  "seconds": 0.182285322574899,
+                  "calls": 2000
+                },
+                "Gather": {
+                  "seconds": 0,
+                  "calls": 0
+                },
+                "Reduce": {
+                  "seconds": 0,
+                  "calls": 0
+                },
+                "Barrier": {
+                  "seconds": 0,
+                  "calls": 0
+                },
+                "Allgatherv": {
+                  "seconds": 0,
+                  "calls": 0
+                },
+                "Gatherv": {
+                  "seconds": 0,
+                  "calls": 0
+                },
+                "Scatterv": {
+                  "seconds": 0,
+                  "calls": 0
+                },
+                "other": {
+                  "seconds": 0,
+                  "calls": 0
+                }
+              },
+              "counters": [
+                1196774140,
+                1197250860,
+                59838707,
+                59862543,
+                58699291,
+                57712902
+              ],
+              "io_s": 0.05134790623560548,
+              "longest_io_s": 0.003327953163534403
+            }
+          ]
+        },
+        "candidate": {
+          "wall_s": 29.75,
+          "stdout_timer_s": 28.3,
+          "launcher_max_child_rss_kib": 3460312,
+          "ranks": [
+            {
+              "rank": 0,
+              "launch": "rank=0 placement=spread node=0 cpus=5,6 threads=2 host=bigMem0 allowed=5,6,20,21,37,38,52,53",
+              "layout": {
+                "rank": 0,
+                "host": "bigMem0",
+                "expected_threads": 2,
+                "actual_threads": 2,
+                "omp_max_threads": 2,
+                "affinity_cpus": [
+                  5
+                ]
+              },
+              "iteration_s": 26.1770690700505,
+              "pre_solver_s": 1.56122817099094,
+              "omp_s": 23.98967314837499,
+              "mpi_s": 0.27800531755201535,
+              "non_mpi_non_omp_s": 1.9093906041234943,
+              "stage_sum_s": 26.095766615355345,
+              "unassigned_stage_s": 0.08130245469515529,
+              "route_local_s": 0.35123772034421497,
+              "stages": {
+                "unclassified": {
+                  "stage_s": 0,
+                  "mpi_s": 0.000103245256468654,
+                  "omp_s": 0,
+                  "mpi_calls": 60,
+                  "omp_calls": 0
+                },
+                "select_local": {
+                  "stage_s": 5.83012313512154,
+                  "mpi_s": 0,
+                  "omp_s": 5.82202501338907,
+                  "mpi_calls": 0,
+                  "omp_calls": 2000
+                },
+                "select_comm": {
+                  "stage_s": 0.0404262533411384,
+                  "mpi_s": 0.024400960886851,
+                  "omp_s": 0,
+                  "mpi_calls": 6000,
+                  "omp_calls": 0
+                },
+                "get_selected": {
+                  "stage_s": 0.011909345863387,
+                  "mpi_s": 0.00574482139199972,
+                  "omp_s": 0,
+                  "mpi_calls": 2000,
+                  "omp_calls": 0
+                },
+                "block_solve": {
+                  "stage_s": 0.15602178662084,
+                  "mpi_s": 0.000888632377609611,
+                  "omp_s": 0,
+                  "mpi_calls": 4000,
+                  "omp_calls": 0
+                },
+                "enum_hij_pack": {
+                  "stage_s": 1.37502795481123,
+                  "mpi_s": 0,
+                  "omp_s": 1.37317783851177,
+                  "mpi_calls": 0,
+                  "omp_calls": 2000
+                },
+                "route_comm": {
+                  "stage_s": 0.580466357292607,
+                  "mpi_s": 0.229228636948392,
+                  "omp_s": 0,
+                  "mpi_calls": 4000,
+                  "omp_calls": 0
+                },
+                "pending_update": {
+                  "stage_s": 10.2490295565221,
+                  "mpi_s": 0,
+                  "omp_s": 10.1666656611487,
+                  "mpi_calls": 0,
+                  "omp_calls": 6000
+                },
+                "hash_update": {
+                  "stage_s": 7.56983991689049,
+                  "mpi_s": 0,
+                  "omp_s": 6.62780463532545,
+                  "mpi_calls": 0,
+                  "omp_calls": 2000
+                },
+                "exact_z_allreduce": {
+                  "stage_s": 0.0233532029669732,
+                  "mpi_s": 0.0154065687675029,
+                  "omp_s": 0,
+                  "mpi_calls": 2000,
+                  "omp_calls": 0
+                },
+                "candidate": {
+                  "stage_s": 0.252949148183689,
+                  "mpi_s": 0,
+                  "omp_s": 0,
+                  "mpi_calls": 0,
+                  "omp_calls": 0
+                },
+                "scalar_update": {
+                  "stage_s": 0.00661995774134994,
+                  "mpi_s": 0.00223245192319155,
+                  "omp_s": 0,
+                  "mpi_calls": 2000,
+                  "omp_calls": 0
+                },
+                "origin_coordinate_pick": {
+                  "stage_s": 0,
+                  "mpi_s": 0,
+                  "omp_s": 0,
+                  "mpi_calls": 0,
+                  "omp_calls": 0
+                },
+                "origin_coordinate_update": {
+                  "stage_s": 0,
+                  "mpi_s": 0,
+                  "omp_s": 0,
+                  "mpi_calls": 0,
+                  "omp_calls": 0
+                },
+                "origin_wavefunction_update": {
+                  "stage_s": 0,
+                  "mpi_s": 0,
+                  "omp_s": 0,
+                  "mpi_calls": 0,
+                  "omp_calls": 0
+                },
+                "origin_energy_estimate": {
+                  "stage_s": 0,
+                  "mpi_s": 0,
+                  "omp_s": 0,
+                  "mpi_calls": 0,
+                  "omp_calls": 0
+                }
+              },
+              "mpi": {
+                "Allreduce": {
+                  "seconds": 0.0212546354159713,
+                  "calls": 4060
+                },
+                "Alltoall": {
+                  "seconds": 0.018121151952073,
+                  "calls": 2000
+                },
+                "Alltoallv": {
+                  "seconds": 0.211107484996319,
+                  "calls": 2000
+                },
+                "Bcast": {
+                  "seconds": 0.00590344984084368,
+                  "calls": 10000
+                },
+                "Allgather": {
+                  "seconds": 0.0216185953468084,
+                  "calls": 2000
+                },
+                "Gather": {
+                  "seconds": 0,
+                  "calls": 0
+                },
+                "Reduce": {
+                  "seconds": 0,
+                  "calls": 0
+                },
+                "Barrier": {
+                  "seconds": 0,
+                  "calls": 0
+                },
+                "Allgatherv": {
+                  "seconds": 0,
+                  "calls": 0
+                },
+                "Gatherv": {
+                  "seconds": 0,
+                  "calls": 0
+                },
+                "Scatterv": {
+                  "seconds": 0,
+                  "calls": 0
+                },
+                "other": {
+                  "seconds": 0,
+                  "calls": 0
+                }
+              },
+              "counters": [
+                1197368800,
+                1196892080,
+                59868440,
+                59844604,
+                58679001,
+                57692360
+              ],
+              "io_s": 0.0467290582600981,
+              "longest_io_s": 0.004026097012683749
+            },
+            {
+              "rank": 1,
+              "launch": "rank=1 placement=spread node=1 cpus=20,21 threads=2 host=bigMem0 allowed=5,6,20,21,37,38,52,53",
+              "layout": {
+                "rank": 1,
+                "host": "bigMem0",
+                "expected_threads": 2,
+                "actual_threads": 2,
+                "omp_max_threads": 2,
+                "affinity_cpus": [
+                  20
+                ]
+              },
+              "iteration_s": 26.178300726926,
+              "pre_solver_s": 1.56077605998144,
+              "omp_s": 23.0583873402793,
+              "mpi_s": 1.387330654775723,
+              "non_mpi_non_omp_s": 1.7325827318709779,
+              "stage_sum_s": 26.098777228035036,
+              "unassigned_stage_s": 0.0795234988909641,
+              "route_local_s": 0.348194899270311,
+              "stages": {
+                "unclassified": {
+                  "stage_s": 0,
+                  "mpi_s": 0.00016113743185997,
+                  "omp_s": 0,
+                  "mpi_calls": 60,
+                  "omp_calls": 0
+                },
+                "select_local": {
+                  "stage_s": 5.66682664188556,
+                  "mpi_s": 0,
+                  "omp_s": 5.65863899118267,
+                  "mpi_calls": 0,
+                  "omp_calls": 2000
+                },
+                "select_comm": {
+                  "stage_s": 0.207119749160483,
+                  "mpi_s": 0.197955001145601,
+                  "omp_s": 0,
+                  "mpi_calls": 6000,
+                  "omp_calls": 0
+                },
+                "get_selected": {
+                  "stage_s": 0.0107263755053282,
+                  "mpi_s": 0.00437580212019384,
+                  "omp_s": 0,
+                  "mpi_calls": 2000,
+                  "omp_calls": 0
+                },
+                "block_solve": {
+                  "stage_s": 0.157594675198197,
+                  "mpi_s": 0.156962037552148,
+                  "omp_s": 0,
+                  "mpi_calls": 4000,
+                  "omp_calls": 0
+                },
+                "enum_hij_pack": {
+                  "stage_s": 1.380007494241,
+                  "mpi_s": 0,
+                  "omp_s": 1.37811917951331,
+                  "mpi_calls": 0,
+                  "omp_calls": 2000
+                },
+                "route_comm": {
+                  "stage_s": 0.580291596474126,
+                  "mpi_s": 0.232096697203815,
+                  "omp_s": 0,
+                  "mpi_calls": 4000,
+                  "omp_calls": 0
+                },
+                "pending_update": {
+                  "stage_s": 9.76196663663723,
+                  "mpi_s": 0,
+                  "omp_s": 9.67702996055596,
+                  "mpi_calls": 0,
+                  "omp_calls": 6000
+                },
+                "hash_update": {
+                  "stage_s": 7.2820931756869,
+                  "mpi_s": 0,
+                  "omp_s": 6.34459920902736,
+                  "mpi_calls": 0,
+                  "omp_calls": 2000
+                },
+                "exact_z_allreduce": {
+                  "stage_s": 0.797865652712062,
+                  "mpi_s": 0.789560935692862,
+                  "omp_s": 0,
+                  "mpi_calls": 2000,
+                  "omp_calls": 0
+                },
+                "candidate": {
+                  "stage_s": 0.24677595612593,
+                  "mpi_s": 0,
+                  "omp_s": 0,
+                  "mpi_calls": 0,
+                  "omp_calls": 0
+                },
+                "scalar_update": {
+                  "stage_s": 0.00750927440822124,
+                  "mpi_s": 0.00621904362924397,
+                  "omp_s": 0,
+                  "mpi_calls": 2000,
+                  "omp_calls": 0
+                },
+                "origin_coordinate_pick": {
+                  "stage_s": 0,
+                  "mpi_s": 0,
+                  "omp_s": 0,
+                  "mpi_calls": 0,
+                  "omp_calls": 0
+                },
+                "origin_coordinate_update": {
+                  "stage_s": 0,
+                  "mpi_s": 0,
+                  "omp_s": 0,
+                  "mpi_calls": 0,
+                  "omp_calls": 0
+                },
+                "origin_wavefunction_update": {
+                  "stage_s": 0,
+                  "mpi_s": 0,
+                  "omp_s": 0,
+                  "mpi_calls": 0,
+                  "omp_calls": 0
+                },
+                "origin_energy_estimate": {
+                  "stage_s": 0,
+                  "mpi_s": 0,
+                  "omp_s": 0,
+                  "mpi_calls": 0,
+                  "omp_calls": 0
+                }
+              },
+              "mpi": {
+                "Allreduce": {
+                  "seconds": 0.794097875244915,
+                  "calls": 4060
+                },
+                "Alltoall": {
+                  "seconds": 0.021872288081795,
+                  "calls": 2000
+                },
+                "Alltoallv": {
+                  "seconds": 0.21022440912202,
+                  "calls": 2000
+                },
+                "Bcast": {
+                  "seconds": 0.174691224237904,
+                  "calls": 10000
+                },
+                "Allgather": {
+                  "seconds": 0.186444858089089,
+                  "calls": 2000
+                },
+                "Gather": {
+                  "seconds": 0,
+                  "calls": 0
+                },
+                "Reduce": {
+                  "seconds": 0,
+                  "calls": 0
+                },
+                "Barrier": {
+                  "seconds": 0,
+                  "calls": 0
+                },
+                "Allgatherv": {
+                  "seconds": 0,
+                  "calls": 0
+                },
+                "Gatherv": {
+                  "seconds": 0,
+                  "calls": 0
+                },
+                "Scatterv": {
+                  "seconds": 0,
+                  "calls": 0
+                },
+                "other": {
+                  "seconds": 0,
+                  "calls": 0
+                }
+              },
+              "counters": [
+                1196774140,
+                1197250860,
+                59838707,
+                59862543,
+                58699291,
+                57712902
+              ],
+              "io_s": 0.05366654437966645,
+              "longest_io_s": 0.004189671017229557
+            }
+          ]
+        }
+      },
+      "wall_reduction_percent": -1.5705018777739874,
+      "iteration_reduction_percent": -1.5088897008928353
+    }
+  },
+  "predecessor_trace": [
+    {
+      "enum_worker": {
+        "events": 4000,
+        "worker_wall_sum_s": 2.610999555559829,
+        "worker_cpu_sum_s": 2.6082883470000686,
+        "sum_iteration_slowest_worker_s": 1.368341538356617,
+        "ideal_equal_work_s": 1.3054997777799144,
+        "ideal_equal_work_gap_s": 0.06284176057670265,
+        "items": 59868440,
+        "max_iteration_items": 30869,
+        "item_imbalance_sum": 480937
+      },
+      "prepare_reset": {
+        "events": 2000,
+        "worker_wall_sum_s": 0.011410724837332964,
+        "worker_cpu_sum_s": 0.010174558999966887,
+        "sum_iteration_slowest_worker_s": 0.011410724837332964,
+        "ideal_equal_work_s": 0.011410724837332964,
+        "ideal_equal_work_gap_s": 0,
+        "items": 0,
+        "max_iteration_items": 0,
+        "item_imbalance_sum": 0
+      },
+      "prepare_count_worker": {
+        "events": 4000,
+        "worker_wall_sum_s": 1.648592771263793,
+        "worker_cpu_sum_s": 1.6470670779999954,
+        "sum_iteration_slowest_worker_s": 0.832373185781762,
+        "ideal_equal_work_s": 0.8242963856318966,
+        "ideal_equal_work_gap_s": 0.008076800149865448,
+        "items": 59844604,
+        "max_iteration_items": 30670,
+        "item_imbalance_sum": 506
+      },
+      "prepare_prefix_offsets": {
+        "events": 2000,
+        "worker_wall_sum_s": 0.06256113294512033,
+        "worker_cpu_sum_s": 0.06189718499997077,
+        "sum_iteration_slowest_worker_s": 0.06256113294512033,
+        "ideal_equal_work_s": 0.06256113294512033,
+        "ideal_equal_work_gap_s": 0,
+        "items": 59844604,
+        "max_iteration_items": 30670,
+        "item_imbalance_sum": 0
+      },
+      "prepare_scatter_worker": {
+        "events": 4000,
+        "worker_wall_sum_s": 0.6376840714365244,
+        "worker_cpu_sum_s": 0.6361099070000356,
+        "sum_iteration_slowest_worker_s": 0.32088385010138154,
+        "ideal_equal_work_s": 0.3188420357182622,
+        "ideal_equal_work_gap_s": 0.0020418143831193447,
+        "items": 59844604,
+        "max_iteration_items": 30670,
+        "item_imbalance_sum": 506
+      },
+      "prepare_accumulate_worker": {
+        "events": 4000,
+        "worker_wall_sum_s": 17.875118091935292,
+        "worker_cpu_sum_s": 17.869704713999944,
+        "sum_iteration_slowest_worker_s": 8.99833394959569,
+        "ideal_equal_work_s": 8.937559045967646,
+        "ideal_equal_work_gap_s": 0.06077490362804383,
+        "items": 59844604,
+        "max_iteration_items": 30670,
+        "item_imbalance_sum": 139742
+      },
+      "prepare_lookup_unique": {
+        "events": 4000,
+        "worker_wall_sum_s": 0,
+        "worker_cpu_sum_s": 0,
+        "sum_iteration_slowest_worker_s": 0,
+        "ideal_equal_work_s": 0,
+        "ideal_equal_work_gap_s": 0,
+        "items": 58679001,
+        "max_iteration_items": 30384,
+        "item_imbalance_sum": 135186.5
+      },
+      "prepare_exact_merge": {
+        "events": 2000,
+        "worker_wall_sum_s": 0.0018647543620318174,
+        "worker_cpu_sum_s": 0.0012303299998901451,
+        "sum_iteration_slowest_worker_s": 0.0018647543620318174,
+        "ideal_equal_work_s": 0.0018647543620318174,
+        "ideal_equal_work_gap_s": 0,
+        "items": 31985,
+        "max_iteration_items": 16,
+        "item_imbalance_sum": 0
+      },
+      "flush_worker": {
+        "events": 4000,
+        "worker_wall_sum_s": 13.138388505205512,
+        "worker_cpu_sum_s": 13.133379111999897,
+        "sum_iteration_slowest_worker_s": 6.623086227569729,
+        "ideal_equal_work_s": 6.569194252602756,
+        "ideal_equal_work_gap_s": 0.053891974966973066,
+        "items": 58679001,
+        "max_iteration_items": 30384,
+        "item_imbalance_sum": 135186.5
+      },
+      "max_iteration_send_bytes": 617380,
+      "parallel_pack_1mib_gate_reached": false
+    },
+    {
+      "enum_worker": {
+        "events": 4000,
+        "worker_wall_sum_s": 2.612783602438867,
+        "worker_cpu_sum_s": 2.609633641000042,
+        "sum_iteration_slowest_worker_s": 1.3738040551543236,
+        "ideal_equal_work_s": 1.3063918012194335,
+        "ideal_equal_work_gap_s": 0.06741225393489003,
+        "items": 59838707,
+        "max_iteration_items": 31017,
+        "item_imbalance_sum": 479916.5
+      },
+      "prepare_reset": {
+        "events": 2000,
+        "worker_wall_sum_s": 0.01388278091326356,
+        "worker_cpu_sum_s": 0.012445935999997548,
+        "sum_iteration_slowest_worker_s": 0.01388278091326356,
+        "ideal_equal_work_s": 0.01388278091326356,
+        "ideal_equal_work_gap_s": 0,
+        "items": 0,
+        "max_iteration_items": 0,
+        "item_imbalance_sum": 0
+      },
+      "prepare_count_worker": {
+        "events": 4000,
+        "worker_wall_sum_s": 1.4095792840234935,
+        "worker_cpu_sum_s": 1.4080677999999622,
+        "sum_iteration_slowest_worker_s": 0.7102273234631866,
+        "ideal_equal_work_s": 0.7047896420117468,
+        "ideal_equal_work_gap_s": 0.0054376814514398575,
+        "items": 59862543,
+        "max_iteration_items": 30704,
+        "item_imbalance_sum": 498.5
+      },
+      "prepare_prefix_offsets": {
+        "events": 2000,
+        "worker_wall_sum_s": 0.06250041769817472,
+        "worker_cpu_sum_s": 0.06180650999989479,
+        "sum_iteration_slowest_worker_s": 0.06250041769817472,
+        "ideal_equal_work_s": 0.06250041769817472,
+        "ideal_equal_work_gap_s": 0,
+        "items": 59862543,
+        "max_iteration_items": 30704,
+        "item_imbalance_sum": 0
+      },
+      "prepare_scatter_worker": {
+        "events": 4000,
+        "worker_wall_sum_s": 0.6396030052565038,
+        "worker_cpu_sum_s": 0.6381077799999486,
+        "sum_iteration_slowest_worker_s": 0.3219914869405329,
+        "ideal_equal_work_s": 0.3198015026282519,
+        "ideal_equal_work_gap_s": 0.0021899843122810125,
+        "items": 59862543,
+        "max_iteration_items": 30704,
+        "item_imbalance_sum": 498.5
+      },
+      "prepare_accumulate_worker": {
+        "events": 4000,
+        "worker_wall_sum_s": 17.170379508752376,
+        "worker_cpu_sum_s": 17.164782157999998,
+        "sum_iteration_slowest_worker_s": 8.630067472811788,
+        "ideal_equal_work_s": 8.585189754376188,
+        "ideal_equal_work_gap_s": 0.0448777184356004,
+        "items": 59862543,
+        "max_iteration_items": 30704,
+        "item_imbalance_sum": 138697.5
+      },
+      "prepare_lookup_unique": {
+        "events": 4000,
+        "worker_wall_sum_s": 0,
+        "worker_cpu_sum_s": 0,
+        "sum_iteration_slowest_worker_s": 0,
+        "ideal_equal_work_s": 0,
+        "ideal_equal_work_gap_s": 0,
+        "items": 58699291,
+        "max_iteration_items": 30297,
+        "item_imbalance_sum": 134769.5
+      },
+      "prepare_exact_merge": {
+        "events": 2000,
+        "worker_wall_sum_s": 0.0019032934214919806,
+        "worker_cpu_sum_s": 0.0012677169999921745,
+        "sum_iteration_slowest_worker_s": 0.0019032934214919806,
+        "ideal_equal_work_s": 0.0019032934214919806,
+        "ideal_equal_work_gap_s": 0,
+        "items": 31985,
+        "max_iteration_items": 16,
+        "item_imbalance_sum": 0
+      },
+      "flush_worker": {
+        "events": 4000,
+        "worker_wall_sum_s": 12.594136385479942,
+        "worker_cpu_sum_s": 12.588942853999967,
+        "sum_iteration_slowest_worker_s": 6.340024207253009,
+        "ideal_equal_work_s": 6.297068192739971,
+        "ideal_equal_work_gap_s": 0.0429560145130381,
+        "items": 58699291,
+        "max_iteration_items": 30297,
+        "item_imbalance_sum": 134769.5
+      },
+      "max_iteration_send_bytes": 620340,
+      "parallel_pack_1mib_gate_reached": false
+    }
+  ],
+  "worker_table": [
+    {
+      "rank": 0,
+      "label": "enum_worker",
+      "worker": 0,
+      "wall_s": 1.3617511347401887,
+      "cpu_s": 1.3607148550000303,
+      "items": 30339716
+    },
+    {
+      "rank": 0,
+      "label": "enum_worker",
+      "worker": 1,
+      "wall_s": 1.2492484208196402,
+      "cpu_s": 1.247573492000038,
+      "items": 29528724
+    },
+    {
+      "rank": 0,
+      "label": "prepare_reset",
+      "worker": -1,
+      "wall_s": 0.011410724837332964,
+      "cpu_s": 0.010174558999966887,
+      "items": 0
+    },
+    {
+      "rank": 0,
+      "label": "prepare_count_worker",
+      "worker": 0,
+      "wall_s": 0.8168769527692348,
+      "cpu_s": 0.8161506440000046,
+      "items": 29921796
+    },
+    {
+      "rank": 0,
+      "label": "prepare_count_worker",
+      "worker": 1,
+      "wall_s": 0.8317158184945583,
+      "cpu_s": 0.8309164339999908,
+      "items": 29922808
+    },
+    {
+      "rank": 0,
+      "label": "prepare_prefix_offsets",
+      "worker": -1,
+      "wall_s": 0.06256113294512033,
+      "cpu_s": 0.06189718499997077,
+      "items": 59844604
+    },
+    {
+      "rank": 0,
+      "label": "prepare_scatter_worker",
+      "worker": 0,
+      "wall_s": 0.3172109117731452,
+      "cpu_s": 0.3164060829999542,
+      "items": 29921796
+    },
+    {
+      "rank": 0,
+      "label": "prepare_scatter_worker",
+      "worker": 1,
+      "wall_s": 0.3204731596633792,
+      "cpu_s": 0.3197038240000814,
+      "items": 29922808
+    },
+    {
+      "rank": 0,
+      "label": "prepare_accumulate_worker",
+      "worker": 0,
+      "wall_s": 8.887916720006615,
+      "cpu_s": 8.885042853999929,
+      "items": 29905808
+    },
+    {
+      "rank": 0,
+      "label": "prepare_accumulate_worker",
+      "worker": 1,
+      "wall_s": 8.987201371928677,
+      "cpu_s": 8.984661860000015,
+      "items": 29938796
+    },
+    {
+      "rank": 0,
+      "label": "prepare_lookup_unique",
+      "worker": 0,
+      "wall_s": 0,
+      "cpu_s": 0,
+      "items": 29324108
+    },
+    {
+      "rank": 0,
+      "label": "prepare_lookup_unique",
+      "worker": 1,
+      "wall_s": 0,
+      "cpu_s": 0,
+      "items": 29354893
+    },
+    {
+      "rank": 0,
+      "label": "prepare_exact_merge",
+      "worker": -1,
+      "wall_s": 0.0018647543620318174,
+      "cpu_s": 0.0012303299998901451,
+      "items": 31985
+    },
+    {
+      "rank": 0,
+      "label": "flush_worker",
+      "worker": 0,
+      "wall_s": 6.530172185739502,
+      "cpu_s": 6.527629782999949,
+      "items": 29324108
+    },
+    {
+      "rank": 0,
+      "label": "flush_worker",
+      "worker": 1,
+      "wall_s": 6.60821631946601,
+      "cpu_s": 6.60574932899995,
+      "items": 29354893
+    },
+    {
+      "rank": 1,
+      "label": "enum_worker",
+      "worker": 0,
+      "wall_s": 1.3679353282786906,
+      "cpu_s": 1.3669183269999876,
+      "items": 30331394
+    },
+    {
+      "rank": 1,
+      "label": "enum_worker",
+      "worker": 1,
+      "wall_s": 1.2448482741601765,
+      "cpu_s": 1.2427153140000542,
+      "items": 29507313
+    },
+    {
+      "rank": 1,
+      "label": "prepare_reset",
+      "worker": -1,
+      "wall_s": 0.01388278091326356,
+      "cpu_s": 0.012445935999997548,
+      "items": 0
+    },
+    {
+      "rank": 1,
+      "label": "prepare_count_worker",
+      "worker": 0,
+      "wall_s": 0.7037799633108079,
+      "cpu_s": 0.703086175999942,
+      "items": 29930773
+    },
+    {
+      "rank": 1,
+      "label": "prepare_count_worker",
+      "worker": 1,
+      "wall_s": 0.7057993207126856,
+      "cpu_s": 0.7049816240000202,
+      "items": 29931770
+    },
+    {
+      "rank": 1,
+      "label": "prepare_prefix_offsets",
+      "worker": -1,
+      "wall_s": 0.06250041769817472,
+      "cpu_s": 0.06180650999989479,
+      "items": 59862543
+    },
+    {
+      "rank": 1,
+      "label": "prepare_scatter_worker",
+      "worker": 0,
+      "wall_s": 0.31946735200472176,
+      "cpu_s": 0.3187349589999957,
+      "items": 29930773
+    },
+    {
+      "rank": 1,
+      "label": "prepare_scatter_worker",
+      "worker": 1,
+      "wall_s": 0.32013565325178206,
+      "cpu_s": 0.31937282099995296,
+      "items": 29931770
+    },
+    {
+      "rank": 1,
+      "label": "prepare_accumulate_worker",
+      "worker": 0,
+      "wall_s": 8.580861032707617,
+      "cpu_s": 8.578069688999982,
+      "items": 29943448
+    },
+    {
+      "rank": 1,
+      "label": "prepare_accumulate_worker",
+      "worker": 1,
+      "wall_s": 8.58951847604476,
+      "cpu_s": 8.586712469000016,
+      "items": 29919095
+    },
+    {
+      "rank": 1,
+      "label": "prepare_lookup_unique",
+      "worker": 0,
+      "wall_s": 0,
+      "cpu_s": 0,
+      "items": 29359320
+    },
+    {
+      "rank": 1,
+      "label": "prepare_lookup_unique",
+      "worker": 1,
+      "wall_s": 0,
+      "cpu_s": 0,
+      "items": 29339971
+    },
+    {
+      "rank": 1,
+      "label": "prepare_exact_merge",
+      "worker": -1,
+      "wall_s": 0.0019032934214919806,
+      "cpu_s": 0.0012677169999921745,
+      "items": 31985
+    },
+    {
+      "rank": 1,
+      "label": "flush_worker",
+      "worker": 0,
+      "wall_s": 6.278605821542442,
+      "cpu_s": 6.276014779000018,
+      "items": 29359320
+    },
+    {
+      "rank": 1,
+      "label": "flush_worker",
+      "worker": 1,
+      "wall_s": 6.3155305639375,
+      "cpu_s": 6.312928074999949,
+      "items": 29339971
+    }
+  ]
+}

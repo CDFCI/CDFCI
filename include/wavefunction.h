@@ -114,10 +114,22 @@ public:
 
     /* Other member functions */
     size_t size_x() const { return size_[0]; }
-    void update_size_x(size_t n) { size_[0] += n; }
+    void update_size_x(size_t n)
+    {
+#ifdef _OPENMP
+#pragma omp atomic update
+#endif
+        size_[0] += n;
+    }
 
     size_t size_z() const { return size_[1]; }
-    void update_size_z(size_t n) { size_[1] += n; }
+    void update_size_z(size_t n)
+    {
+#ifdef _OPENMP
+#pragma omp atomic update
+#endif
+        size_[1] += n;
+    }
 
     size_t size() const { return data_.size(); }
 
@@ -352,6 +364,137 @@ public:
     virtual ~WaveFunction() {}
 
     NumericalType max_load_factor() const { return max_load_factor_; }
+
+    bool local_contains(const key_type &det) const
+    {
+        return data_.find(det) != data_.end();
+    }
+
+    mapped_type local_get_value_or_zero(const key_type &det) const
+    {
+        mapped_type value = {};
+        auto found = data_.find_val(det);
+        if (found)
+            value = *found;
+        return value;
+    }
+
+    bool local_get_value(const key_type &det, mapped_type &value) const
+    {
+        auto found = data_.find_val(det);
+        if (!found)
+            return false;
+        value = *found;
+        return true;
+    }
+
+    void local_add_x(key_type &det, data_type dx)
+    {
+        mapped_type val_new = {};
+        add_assign_first_half(val_new, dx);
+
+        int new_element = !is_zero_on_first_half(val_new);
+        auto update_functor = [dx, &new_element](mapped_type &val) {
+            const bool old_nonzero = !is_zero_on_first_half(val);
+            add_assign_first_half(val, dx);
+            new_element = static_cast<int>(!is_zero_on_first_half(val)) - old_nonzero;
+            return false;
+        };
+
+        upsert(data_, det, update_functor, val_new);
+#ifdef _OPENMP
+#pragma omp atomic update
+#endif
+        size_[0] += new_element;
+    }
+
+    void local_add_z(key_type &det, data_type dz)
+    {
+        local_add_z_and_get_x(det, dz);
+    }
+
+    // A local hash-table transaction: read immutable x and add dz under the
+    // same key lookup/lock. The caller decides whether an absent key is kept.
+    data_type local_add_z_and_get_x(key_type &det, data_type dz)
+    {
+        mapped_type val_new = {};
+        add_assign_second_half(val_new, dz);
+        data_type x = {};
+
+        int new_element = !is_zero_on_second_half(val_new);
+        auto update_functor = [dz, &new_element, &x](mapped_type &val) {
+            x = slice_first_half(val);
+            const bool old_nonzero = !is_zero_on_second_half(val);
+            add_assign_second_half(val, dz);
+            new_element = static_cast<int>(!is_zero_on_second_half(val)) - old_nonzero;
+            return false;
+        };
+
+        upsert(data_, det, update_functor, val_new);
+#ifdef _OPENMP
+#pragma omp atomic update
+#endif
+        size_[1] += new_element;
+        return x;
+    }
+
+    // Diagnostic candidate: defer the shared z-size update until the
+    // enclosing batch has finished. Callers must ensure no observer uses
+    // size_z() between this operation and local_commit_z_count_delta().
+    int local_add_z_deferred_count(key_type &det, data_type dz)
+    {
+        mapped_type val_new = {};
+        add_assign_second_half(val_new, dz);
+        int new_element = !is_zero_on_second_half(val_new);
+        auto update_functor = [dz, &new_element](mapped_type &val) {
+            const bool old_nonzero = !is_zero_on_second_half(val);
+            add_assign_second_half(val, dz);
+            new_element = static_cast<int>(!is_zero_on_second_half(val)) - old_nonzero;
+            return false;
+        };
+        upsert(data_, det, update_functor, val_new);
+        return new_element;
+    }
+
+    void local_commit_z_count_delta(long long delta)
+    {
+        // Called on the owner thread after the OpenMP loop's implicit barrier.
+        if (delta >= 0)
+            size_[1] += static_cast<size_t>(delta);
+        else
+            size_[1] -= static_cast<size_t>(-delta);
+    }
+
+    void local_set_z(key_type &det, data_type new_z)
+    {
+        auto old_value = data_.find_val(det);
+        bool old_has_z = old_value && !is_zero_on_second_half(*old_value);
+
+        mapped_type val_new = {};
+        assign_second_half(val_new, new_z);
+        auto update_functor = [new_z](mapped_type &val) {
+            assign_second_half(val, new_z);
+            return false;
+        };
+
+        upsert(data_, det, update_functor, val_new);
+
+        bool new_has_z = !is_zero_on_second_half(val_new);
+        if (!old_has_z && new_has_z)
+            this->update_size_z(1);
+        else if (old_has_z && !new_has_z)
+            --size_[1];
+    }
+
+    void set_global_scalars(data_matrix_type xx,
+                            data_matrix_type xz,
+                            ScaleFactorType scale)
+    {
+        this->set_xx(xx);
+        this->set_xz(xz);
+        this->set_scale(scale);
+        this->compute_variational_energy();
+    }
 
     /* Update x or z */
     void update_x(key_type &det, data_type dx)

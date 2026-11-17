@@ -674,6 +674,14 @@ public:
         Column                result;
 
         int n_excitations = nelec * (nelec - 1) / 2;
+#ifdef CDFCI_ENABLE_MPI
+        for (auto idx = tid; idx < n_excitations; idx += nthreads)
+        {
+            int idx_j = 0.5 + sqrt(0.25 + 2 * idx);
+            int idx_i = idx - (idx_j - 1) * idx_j / 2;
+            get_double_excitation(det_decoded, result, idx_i, idx_j);
+        }
+#else
         // Compute the range the thread needs to compute
         // 0 <= tid < nthreads
         int idx_start = tid * n_excitations / nthreads;
@@ -685,6 +693,7 @@ public:
             int idx_i = idx - (idx_j - 1) * idx_j / 2;
             get_double_excitation(det_decoded, result, idx_i, idx_j);
         }
+#endif
 
         return result;
     }
@@ -1149,6 +1158,14 @@ public:
         Column                result;
 
         int n_excitations = nelec * (nelec - 1) / 2;
+#ifdef CDFCI_ENABLE_MPI
+        for (auto idx = tid; idx < n_excitations; idx += nthreads)
+        {
+            int idx_j = 0.5 + sqrt(0.25 + 2 * idx);
+            int idx_i = idx - (idx_j - 1) * idx_j / 2;
+            get_double_excitation(det_decoded, result, idx_i, idx_j);
+        }
+#else
         // Compute the range the thread needs to compute
         // 0 <= tid < nthreads
         int idx_start = tid * n_excitations / nthreads;
@@ -1160,6 +1177,7 @@ public:
             int idx_i = idx - (idx_j - 1) * idx_j / 2;
             get_double_excitation(det_decoded, result, idx_i, idx_j);
         }
+#endif
 
         return result;
     }

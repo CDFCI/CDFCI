@@ -1,0 +1,172 @@
+{
+  "known_failure_evidence_gaps": [
+    {
+      "case": "mpi_n32_t4",
+      "issue": "invalid hardware inventory",
+      "file": "inventory_0.json"
+    },
+    {
+      "case": "mpi_n32_t4",
+      "issue": "invalid hardware inventory",
+      "file": "inventory_1.json"
+    },
+    {
+      "case": "mpi_n32_t4",
+      "issue": "invalid hardware inventory",
+      "file": "inventory_2.json"
+    },
+    {
+      "case": "mpi_n32_t4",
+      "issue": "invalid hardware inventory",
+      "file": "inventory_3.json"
+    },
+    {
+      "case": "mpi_n32_t4",
+      "issue": "invalid hardware inventory",
+      "file": "inventory_4.json"
+    },
+    {
+      "case": "mpi_n32_t4",
+      "issue": "invalid hardware inventory",
+      "file": "inventory_5.json"
+    },
+    {
+      "case": "mpi_n32_t4",
+      "issue": "invalid hardware inventory",
+      "file": "inventory_6.json"
+    },
+    {
+      "case": "mpi_n32_t4",
+      "issue": "invalid hardware inventory",
+      "file": "inventory_7.json"
+    },
+    {
+      "case": "mpi_n32_t4",
+      "issue": "invalid hardware inventory",
+      "file": "inventory_8.json"
+    },
+    {
+      "case": "mpi_n32_t4",
+      "issue": "invalid hardware inventory",
+      "file": "inventory_9.json"
+    },
+    {
+      "case": "mpi_n32_t4",
+      "issue": "invalid hardware inventory",
+      "file": "inventory_10.json"
+    },
+    {
+      "case": "mpi_n32_t4",
+      "issue": "invalid hardware inventory",
+      "file": "inventory_11.json"
+    },
+    {
+      "case": "mpi_n32_t4",
+      "issue": "invalid hardware inventory",
+      "file": "inventory_12.json"
+    },
+    {
+      "case": "mpi_n32_t4",
+      "issue": "invalid hardware inventory",
+      "file": "inventory_13.json"
+    },
+    {
+      "case": "mpi_n32_t4",
+      "issue": "invalid hardware inventory",
+      "file": "inventory_14.json"
+    },
+    {
+      "case": "mpi_n32_t4",
+      "issue": "invalid hardware inventory",
+      "file": "inventory_15.json"
+    },
+    {
+      "case": "mpi_n32_t4",
+      "issue": "invalid hardware inventory",
+      "file": "inventory_16.json"
+    },
+    {
+      "case": "mpi_n32_t4",
+      "issue": "invalid hardware inventory",
+      "file": "inventory_17.json"
+    },
+    {
+      "case": "mpi_n32_t4",
+      "issue": "invalid hardware inventory",
+      "file": "inventory_18.json"
+    },
+    {
+      "case": "mpi_n32_t4",
+      "issue": "invalid hardware inventory",
+      "file": "inventory_19.json"
+    },
+    {
+      "case": "mpi_n32_t4",
+      "issue": "invalid hardware inventory",
+      "file": "inventory_20.json"
+    },
+    {
+      "case": "mpi_n32_t4",
+      "issue": "invalid hardware inventory",
+      "file": "inventory_21.json"
+    },
+    {
+      "case": "mpi_n32_t4",
+      "issue": "invalid hardware inventory",
+      "file": "inventory_22.json"
+    },
+    {
+      "case": "mpi_n32_t4",
+      "issue": "invalid hardware inventory",
+      "file": "inventory_23.json"
+    },
+    {
+      "case": "mpi_n32_t4",
+      "issue": "invalid hardware inventory",
+      "file": "inventory_24.json"
+    },
+    {
+      "case": "mpi_n32_t4",
+      "issue": "invalid hardware inventory",
+      "file": "inventory_25.json"
+    },
+    {
+      "case": "mpi_n32_t4",
+      "issue": "invalid hardware inventory",
+      "file": "inventory_26.json"
+    },
+    {
+      "case": "mpi_n32_t4",
+      "issue": "invalid hardware inventory",
+      "file": "inventory_27.json"
+    },
+    {
+      "case": "mpi_n32_t4",
+      "issue": "invalid hardware inventory",
+      "file": "inventory_28.json"
+    },
+    {
+      "case": "mpi_n32_t4",
+      "issue": "invalid hardware inventory",
+      "file": "inventory_29.json"
+    },
+    {
+      "case": "mpi_n32_t4",
+      "issue": "invalid hardware inventory",
+      "file": "inventory_30.json"
+    },
+    {
+      "case": "mpi_n32_t4",
+      "issue": "invalid hardware inventory",
+      "file": "inventory_31.json"
+    }
+  ],
+  "cases": 42,
+  "completed": 42,
+  "rank_profiles": 762,
+  "hardware_records": 778,
+  "iterations": 254,
+  "attempts": 44,
+  "actual_core_hours": 9384.675555555556,
+  "problems": []
+}

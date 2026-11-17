@@ -15,9 +15,22 @@
 // LICENSE file in the root directory of this source tree.
 
 #include "driver.h"
+#ifdef CDFCI_ENABLE_MPI
+#include <mpi.h>
+#endif
 
 int main(int argc, char *argv[])
 {
+#ifdef CDFCI_ENABLE_MPI
+    int provided = MPI_THREAD_SINGLE;
+    MPI_Init_thread(&argc, &argv, MPI_THREAD_FUNNELED, &provided);
+    if (provided < MPI_THREAD_FUNNELED)
+    {
+        std::cerr << "MPI runtime does not support MPI_THREAD_FUNNELED." << std::endl;
+        MPI_Abort(MPI_COMM_WORLD, 1);
+        return 1;
+    }
+#endif
     try
     {
         if (argc < 2)
@@ -29,12 +42,23 @@ int main(int argc, char *argv[])
 
         CDFCIProgramDriver cdfci_driver(input_file);
         cdfci_driver.run();
+#ifdef CDFCI_ENABLE_MPI
+        MPI_Finalize();
+#endif
         return 0;
     }
     catch (const std::exception &e)
     {
+#ifdef CDFCI_ENABLE_MPI
+        if (cdfci_mpi::is_io_root())
+        {
+#endif
         std::cerr << std::endl
                   << "ERROR: " << e.what() << std::endl;
+#ifdef CDFCI_ENABLE_MPI
+        }
+        MPI_Abort(MPI_COMM_WORLD, 1);
+#endif
         return 1;
     }
 }

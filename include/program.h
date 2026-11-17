@@ -24,6 +24,9 @@
 #include "rdm.h"
 #include "perturbation.h"
 #include "optimizer.h"
+#ifdef CDFCI_ENABLE_MPI
+#include "mpi_solver.h"
+#endif
 
 template <typename Func>
 void time_block(const std::string& tag, Func&& f)
@@ -32,6 +35,10 @@ void time_block(const std::string& tag, Func&& f)
     f();
     auto t1 = std::chrono::high_resolution_clock::now();
     auto dt = std::chrono::duration<double>(t1 - t0).count();
+#ifdef CDFCI_ENABLE_MPI
+    if (!cdfci_mpi::is_io_root())
+        return;
+#endif
     std::cout << "[Timer] " << tag << " took " << dt << " s\n";
 }
 
@@ -53,12 +60,18 @@ public:
 #endif
     using wf_type     = WaveFunction<container_type>;
     using solver_type = Solver<ham_type, wf_type>;
+#ifdef CDFCI_ENABLE_MPI
+    using mpi_solver_type = MPICDFCISolver<ham_type, wf_type>;
+#endif
 
     Option opt;
 
     std::unique_ptr<ham_type> ham_ptr;
 
     std::unique_ptr<solver_type> solver_ptr;
+#ifdef CDFCI_ENABLE_MPI
+    std::unique_ptr<mpi_solver_type> mpi_solver_ptr;
+#endif
 
     // wf_type vec_xz;
 
@@ -71,7 +84,7 @@ public:
     {
         opt = option;
         ham_ptr = Hamiltonian<N>::init(opt["hamiltonian"]);
-        solver_ptr = Solver<ham_type, wf_type>::init(opt["solver"]);
+        init_solver();
     }
 
     CDFCIProgram(Option option, Fcidump &fci)
@@ -80,7 +93,7 @@ public:
 
         ham_ptr = std::make_unique<HamiltonianMolecule<N>>(fci);
 
-        solver_ptr = Solver<ham_type,wf_type>::init(opt["solver"]);
+        init_solver();
     }
 
     ~CDFCIProgram() {}
@@ -90,7 +103,24 @@ public:
         det_type::constuct_masks();
         wf_type vec_xz;
         time_block("Solver", [&]{
-            vec_xz = solver_ptr->solve(*ham_ptr);
+            if (is_mpi_solver())
+            {
+                if (opt.contains("perturbation") || opt.contains("rdm"))
+                {
+                    throw std::invalid_argument(
+                        "perturbation and rdm are not supported by mpi_cdfci in the first MPI baseline.");
+                }
+#ifdef CDFCI_ENABLE_MPI
+                if (single_rank_openmp)
+                    vec_xz = solver_ptr->solve(*ham_ptr);
+                else
+                    vec_xz = mpi_solver_ptr->solve(*ham_ptr);
+#endif
+            }
+            else
+            {
+                vec_xz = solver_ptr->solve(*ham_ptr);
+            }
         });
 
         if (opt.contains("perturbation"))
@@ -122,13 +152,79 @@ public:
             });
         }
 
+        if (is_mpi_solver())
+        {
+#ifdef CDFCI_ENABLE_MPI
+            return single_rank_openmp ? solver_ptr->get_result() : mpi_solver_ptr->get_result();
+#else
+            throw std::invalid_argument("solver.type = mpi_cdfci requires building with CDFCI_ENABLE_MPI.");
+#endif
+        }
         return solver_ptr->get_result();
     }
 
     void print_header()
     {
+#ifdef CDFCI_ENABLE_MPI
+        if (!cdfci_mpi::is_io_root())
+            return;
+#endif
         ham_ptr->print_header();
-        solver_ptr->print_solver_header();
+        if (is_mpi_solver())
+        {
+#ifdef CDFCI_ENABLE_MPI
+            if (single_rank_openmp)
+            {
+                std::cout << "MPI ranks: 1\nSolver path: single-rank OpenMP CDFCI\n"
+                          << "Block size: " << mpi_solver_ptr->num_coordinates << '\n';
+                solver_ptr->print_solver_header();
+            }
+            else
+                mpi_solver_ptr->print_solver_header();
+#endif
+        }
+        else
+        {
+            solver_ptr->print_solver_header();
+        }
+    }
+
+private:
+#ifdef CDFCI_ENABLE_MPI
+    bool single_rank_openmp = false;
+#endif
+    bool is_mpi_solver() const
+    {
+        return opt["solver"]["type"] == "mpi_cdfci";
+    }
+
+    void init_solver()
+    {
+        if (is_mpi_solver())
+        {
+#ifdef CDFCI_ENABLE_MPI
+            if (!opt["solver"].contains("mpi_cdfci") || !opt["solver"]["mpi_cdfci"].is_object())
+                throw std::invalid_argument("Missing or invalid 'mpi_cdfci' configuration in solver option.");
+            mpi_solver_ptr = std::make_unique<mpi_solver_type>(opt["solver"]["mpi_cdfci"]);
+            if (cdfci_mpi::size() == 1)
+            {
+                // CDFCISolver selects ls for one coordinate and eig for a block.
+                // Refuse configurations it would otherwise silently reinterpret.
+                if (mpi_solver_ptr->num_coordinates == 1 && mpi_solver_ptr->coord_update_str != "ls")
+                    throw std::invalid_argument("single-rank OpenMP CDFCI requires coordinate_update=ls or auto when num_coordinates=1.");
+                Option fallback = {{"type", "cdfci"}, {"cdfci", mpi_solver_ptr->opt}};
+                fallback["cdfci"].erase("hash_updates");
+                solver_ptr = Solver<ham_type, wf_type>::init(fallback);
+                single_rank_openmp = true;
+            }
+#else
+            throw std::invalid_argument("solver.type = mpi_cdfci requires building with CDFCI_ENABLE_MPI.");
+#endif
+        }
+        else
+        {
+            solver_ptr = Solver<ham_type, wf_type>::init(opt["solver"]);
+        }
     }
 };
 
@@ -176,6 +272,10 @@ public:
 
     void print_header()
     {
+#ifdef CDFCI_ENABLE_MPI
+        if (!cdfci_mpi::is_io_root())
+            return;
+#endif
         ham_ptr->print_header();
         solver_ptr->print_solver_header();
     }

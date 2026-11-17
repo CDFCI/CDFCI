@@ -2,6 +2,8 @@
 
 # compiler path (g++ or icpx)
 CC = g++
+# MPI compiler path
+MPICC ?= mpicxx
 # compiler flag
 CCFLAG = -O3 -std=c++17
 # compiler debug flag
@@ -48,6 +50,8 @@ BINDIR ?= $(PREFIX)/bin
 # executable name
 # OpenMP disabled, single thread
 TARGET_CDFCI = cdfci
+TARGET_CDFCI_MPI = $(TARGET_CDFCI)_mpi
+TARGET_CDFCI_MPI_SERIAL = $(TARGET_CDFCI)_mpi_serial
 TARGET_TOOLS = cdfci_tools
 TARGET_OPTORBFCI = optorbfci
 TARGET_XCDFCI = xcdfci
@@ -94,6 +98,16 @@ cdfci:
 	mkdir -p $(DIR_BIN)
 	$(CC) $(CCFLAG) $(SOURCE_CDFCI) -o $(DIR_BIN)/$(TARGET_CDFCI) $(LFLAG)
 	$(CC) $(CCFLAG) $(OMP_FLAG) $(SOURCE_CDFCI) -o $(DIR_BIN)/$(TARGET_CDFCI_OMP) $(LFLAG)
+
+.PHONY: cdfci_mpi mpi
+cdfci_mpi mpi:
+	mkdir -p $(DIR_BIN)
+	$(MPICC) $(CCFLAG) $(OMP_FLAG) -DCDFCI_ENABLE_MPI $(SOURCE_CDFCI) -o $(DIR_BIN)/$(TARGET_CDFCI_MPI) $(LFLAG)
+
+.PHONY: cdfci_mpi_serial mpi_serial
+cdfci_mpi_serial mpi_serial:
+	mkdir -p $(DIR_BIN)
+	$(MPICC) $(CCFLAG) -DCDFCI_ENABLE_MPI -DCDFCI_SOLVER_SERIAL $(SOURCE_CDFCI) -o $(DIR_BIN)/$(TARGET_CDFCI_MPI_SERIAL) $(LFLAG)
 
 .PHONY: tools
 tools:
@@ -183,6 +197,8 @@ format:
 .PHONY: clean
 clean:
 	rm -f $(DIR_BIN)/$(TARGET_CDFCI)
+	rm -f $(DIR_BIN)/$(TARGET_CDFCI_MPI)
+	rm -f $(DIR_BIN)/$(TARGET_CDFCI_MPI_SERIAL)
 	rm -f $(DIR_BIN)/$(TARGET_CDFCI_OMP)
 	rm -f $(DIR_BIN)/$(TARGET_TOOLS)
 	rm -f $(DIR_BIN)/$(TARGET_XCDFCI)

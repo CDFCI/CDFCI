@@ -60,6 +60,10 @@ public:
           {"cdfci",
            {{"verbose", 2},
             {"max_load_factor", 0.79},
+            {"max_wavefunction_size", 1000000}}},
+          {"mpi_cdfci",
+           {{"verbose", 2},
+            {"max_load_factor", 0.79},
             {"max_wavefunction_size", 1000000}}}}},
         {"num_states", 1},
         {"verbose", 2},
@@ -114,6 +118,7 @@ public:
         get_bytes_per_entry();
         get_max_wavefunction_size();
         update_option();
+        configure_openmp_from_environment();
 
         return;
     }
@@ -169,6 +174,21 @@ public:
         opt["solver"][solver]["max_load_factor"] = max_load_factor;
         opt["solver"][solver]["max_wavefunction_size"] = max_wavefunction_size;
         return;
+    }
+
+    void configure_openmp_from_environment() const
+    {
+#if defined(_OPENMP) && defined(CDFCI_ENABLE_MPI)
+        if (opt["solver"]["type"] == "mpi_cdfci")
+        {
+            int slurm_cpus_per_task = cdfci_mpi::env_int("SLURM_CPUS_PER_TASK");
+            if (slurm_cpus_per_task > 0)
+            {
+                omp_set_dynamic(0);
+                omp_set_num_threads(slurm_cpus_per_task);
+            }
+        }
+#endif
     }
 
     static void print_header()
@@ -252,12 +272,25 @@ public:
 
     Result run() const
     {
+#ifdef CDFCI_ENABLE_MPI
+        bool print_rank = cdfci_mpi::is_io_root();
+#else
+        bool print_rank = true;
+#endif
         if (verbose > 1)
         {
+#ifdef CDFCI_ENABLE_MPI
+            if (print_rank)
+                print_header();
+            cdfci_mpi::print_rank_thread_info();
+            if (print_rank)
+                print_machine_header();
+#else
             print_header();
             print_machine_header();
+#endif
         }
-        if (verbose > 2)
+        if (print_rank && verbose > 2)
         {
             print_input_option_header();
         }
@@ -343,12 +376,25 @@ public:
 
     Result run() const
     {
+#ifdef CDFCI_ENABLE_MPI
+        bool print_rank = cdfci_mpi::is_io_root();
+#else
+        bool print_rank = true;
+#endif
         if (verbose > 1)
         {
+#ifdef CDFCI_ENABLE_MPI
+            if (print_rank)
+                print_header();
+            cdfci_mpi::print_rank_thread_info();
+            if (print_rank)
+                print_machine_header();
+#else
             print_header();
             print_machine_header();
+#endif
         }
-        if (verbose > 2)
+        if (print_rank && verbose > 2)
         {
             print_input_option_header();
         }
@@ -423,12 +469,25 @@ public:
 
     NumericalType run() const
     {
+#ifdef CDFCI_ENABLE_MPI
+        bool print_rank = cdfci_mpi::is_io_root();
+#else
+        bool print_rank = true;
+#endif
         if (verbose > 1)
         {
+#ifdef CDFCI_ENABLE_MPI
+            if (print_rank)
+                print_header();
+            cdfci_mpi::print_rank_thread_info();
+            if (print_rank)
+                print_machine_header();
+#else
             print_header();
             print_machine_header();
+#endif
         }
-        if (verbose > 2)
+        if (print_rank && verbose > 2)
         {
             print_input_option_header();
         }
